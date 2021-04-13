@@ -9,9 +9,9 @@ context("Assertions", () => {
     cy.visit("http://localhost:3000/");
   });
 
-  describe("Template Tests", () => {
+ describe("Template Tests", () => {
 
-    it('clicking Submit template without name gives error', () => {
+   it('clicking Submit template without name gives error', () => {
 
       // login
       cy.get('#email')
@@ -98,7 +98,7 @@ context("Assertions", () => {
       cy.contains("The template name can only contain alpha numeric characters, underscores and/or hyphens");
     });
 
-    it('clicking Submit template with file and name generate success', () => {
+    it('clicking Submit template with file and name generate success and remove template works', () => {
 
       // login
       cy.get('#email')
@@ -141,6 +141,12 @@ context("Assertions", () => {
 
       //verify grid has template
       cy.get('table').contains('td', templateName);
+
+      cy.get('#dropdownMenuButton').click();
+      cy.wait(2000);
+
+      cy.get('#RemoveTemplateDropDown').click();
+      cy.wait(2000);
    
       cy.get('#template-nameR')
         .should('be.visible')
@@ -150,8 +156,10 @@ context("Assertions", () => {
       cy.get('#RemoveTemplate')
       .should('be.visible')
       .click();
-      cy.wait(5000);
 
+      cy.wait(5000);
+      //confirm template deleted
+      cy.get('table').contains('td', templateName).siblings().contains('td', 'Deactivated');
     });
 
     it('login success and navigates to testcypress template and display image', () => {

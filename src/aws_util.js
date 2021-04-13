@@ -1,3 +1,4 @@
+
 import AWS from 'aws-sdk'
 import axios from 'axios'
 import fs from 'fs'
@@ -40,10 +41,10 @@ const uploadFile = async (fileInput,BUCKET_NAME, templateName) => {
     const res = await axios.post(`https://q6z3mxhv9d.execute-api.us-east-1.amazonaws.com/v1/template`, 
                                     body, header);
     if(res.data.statusCode !== 200) {
-        console.log(res);
         throw new Error(res.data.body);
     }
     } catch (err) {
+        console.log("doc upload err:",err);
       throw err;
     }
     
@@ -101,11 +102,14 @@ const createBatchEmailCampaign = async(fileInput, subjectLine, templateName, dyn
         console.log(res);
         throw new Error(res.data.body);
     }
+    return res.data;
     } catch (err) {
       throw err;
     }
 
 }
+
+
 const encodeFileAsText = async (fileInput) => {
    return new Promise((resolve, reject) => {
         try {
@@ -116,27 +120,31 @@ const encodeFileAsText = async (fileInput) => {
                     resolve(reader.result);
                 }
             };
+            
             reader.readAsText(fileInput);
         } catch(err) {
             reject(err);
         }
    });
 };
-const encodeFileAsBase64String = async (fileInput) => {
-   return new Promise((resolve, reject) => {
-        try {
 
-            let reader = new FileReader();
-            reader.onload = function() {
-                if(reader.readyState === FileReader.DONE) {
-                    resolve(reader.result);
-                }
-            };
-            reader.readAsDataURL(fileInput);
-        } catch(err) {
-            reject(err);
-        }
-   });
-};
+
+const encodeFileAsBase64String = async (fileInput) => {
+    return new Promise((resolve, reject) => {
+         try {
+ 
+             let reader = new FileReader();
+             reader.onload = function() {
+                 if(reader.readyState === FileReader.DONE) {
+                     resolve(reader.result);
+                 }
+             };
+ 
+             reader.readAsDataURL(fileInput);
+         } catch(err) {
+             reject(err);
+         }
+    });
+ };
 
 export {uploadFile, createBatchEmailCampaign, removeFile}

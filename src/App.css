@@ -22,6 +22,9 @@
 body{
   margin:30px, 
 }
+.button-spacing {
+    margin-right: 50px;
+}
 .my-container{
 border: 1px white;
 width: 100%;
@@ -35,6 +38,12 @@ overflow: auto;
 text-align: 'center',
 
 }
+.pr-60 {
+  padding-right:60px; 
+}
+.form-group {
+  margin-bottom:0 !important;
+}
 .my-rows{
   border: 1px solid white;
 }
@@ -43,15 +52,12 @@ text-align: 'center',
 }
 
 .my-row1{
-  padding-top: 30px;
-  padding-bottom: 30px;
   padding-left: 30px;
 }
 
 .my-row2{
-  padding-left: 60px;
+  padding-left: 30px;
   padding-right: 60px;
-  padding-top: 30px;
 }
 .my-row3{
   padding-top: 30px;

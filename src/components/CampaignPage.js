@@ -31,16 +31,17 @@ class CampaignPage extends React.Component {
             EMAIL_NOT_SES_VERIFIED: "This Email Address is not registered with this service. Please ask the team to register your email before continuing."
         });
         this.state = { 
-            templateKey: this.props.match.params.templateKey,
+            templateKey: this.props.location.state.templateKey,
             docHtml: '', 
             dynamicValues: this.props.location.state.dynamicValues,
-            templateName: this.props.location.state.templateName,
+            templateName: this.props.match.params.templateName,
             emailAddress: '' ,
             message: null,
             loading: false,
             subjectLine: "",
             authenticated: this.props.user
         }
+        console.log(this.state);
         
         this.handleEmailChange = this.handleEmailChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -55,12 +56,12 @@ class CampaignPage extends React.Component {
             return (
                 <div className="container-fluid my-container">
                     <div className="row my-rows" style={{ textAlign: 'center' }}>
-                        <div className="col-6 my-col">Preview Template</div>
+                        <div className="col-6 my-col">{`Preview Template: ${this.state.templateName}`}</div>
                         <div className="col-6 my-col">Create Email Campaign</div>
                     </div>
                     <div className="row my-rows">
                         {this.state.docHtml?
-                            <div className="col-6 my-col img-responsive" dangerouslySetInnerHTML={{ __html: this.state.docHtml }} /> :
+                            <div className="col-6 my-col img-responsive overflow-auto" style={{wordWrap: 'break-word'}}  dangerouslySetInnerHTML={{ __html: this.state.docHtml }} /> :
                             <div className="col-6 my-col">
                                 <div className="vertical-horizontal-center">
                                     <div className="spinner-border text-primary" style={{width: "6rem", height: "6rem"}} role="status"></div>
@@ -71,16 +72,18 @@ class CampaignPage extends React.Component {
                             <Link
                                 className="btn btn-primary float-right mt-2"
                                 role="button"
+                                id="homepagebutton"
                                 to={"/HomePage"}>
                                 {"Return to Home Page"}
                             </Link>
                             <div className="row my-row1"></div>
-                            <div className="row justify-content-space-evenly my-row">
-                                <img src={userLogo} id='img-rounded0' className="img-rounded" width="30" height="30" />
+                            <div className="row justify-content-space-evenly my-row mt-5 mb-2">
+                                <img src={userLogo} className="img-rounded" width="30" height="30" />
+
                             </div>
                             <div className="form-group">
                                 <div className="row justify-content-space-evenly my-row2">
-                                    <div className="input-group mb-3">
+                                    <div className="input-group mb-1">
                                         <div className="input-group-prepend">
                                             <span className="input-group-text">Single Email Address</span>
                                         </div>
@@ -95,7 +98,7 @@ class CampaignPage extends React.Component {
                                     </div>
                                 </div>
                                 <div className="row justify-content-space-evenly my-row2">
-                                    <div className="input-group mb-3">
+                                    <div className="input-group mb-1">
                                         <div className="input-group-prepend">
                                             <span className="input-group-text">Subject Line</span>
                                         </div>
@@ -112,12 +115,12 @@ class CampaignPage extends React.Component {
                                 {this.state.dynamicValues.length > 0 ?
                                     <div className="row justify-content-space-evenly my-row2">
                                         Dynamic Values
-                                        <div className="input-group mb-3">
+                                        <div className="input-group mb-1">
                                             {this.createDynamicValueTextFields()}
                                         </div>
                                     </div> : null }
                             </div>
-                            <div className="row justify-content-right my-row1">
+                            <div className="row justify-content-right my-row1 mb-1 button-spacing">
                                 <button type="button" className="btn btn-success" id='button1' onClick={this.handleSubmit}>Submit</button>
                             </div>
                             {this.state.loading ?
@@ -148,6 +151,7 @@ class CampaignPage extends React.Component {
 
     async componentDidMount() {
         var s3 = new AWS.S3();
+        console.log(this.state.templateKey);
         s3.getObject({ Bucket: BUCKET_NAME, Key: this.state.templateKey }, (err, data) => {
             if (err) {
                 console.log(err);
@@ -233,7 +237,7 @@ class CampaignPage extends React.Component {
         //Validate Dynamic Value Inputs are correctly formatted
         for(var input of dynamicValueInputs) {
             var dynamicValue = input.getAttribute("aria-label");
-            if(this.isEmptyStringOrNull(this.state[dynamicValue])) {
+            if(this.state[dynamicValue] == undefined || this.isEmptyStringOrNull(this.state[dynamicValue].trimEnd())) {
                 input.classList.add("inputError");
                 emptyField = true;
             } else {

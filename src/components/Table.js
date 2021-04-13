@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import $ from 'jquery';
+import { object } from "prop-types";
 
 /**  
  * 
@@ -10,10 +12,11 @@ import { Link } from "react-router-dom";
  *  (, <column>)*
  * ]}
  * <column> ::= {title: <string>, content:[list of <content>]}
- * <content> := <string> | <button>
+ * <content> := <string> | <button> | <truncatedContent> 
  * <button> ::= {button: {displayName: <string>, link: <string>}}
  * link should be string in the form of an HTML link e.g "/HomePage"
  * button links to the route given by link
+ * <truncatedContent> ::= {truncatedContent: {truncatedVersion:<string>, fullVersion: <string>}}
  * 
  * - link should be string in the form of an HTML link e.g "/HomePage"
  * 
@@ -23,11 +26,12 @@ import { Link } from "react-router-dom";
  * 
  * - specifies which columns should be shown in table if columns is not specified all columns are shown
  * 
- * - columns is an array of {title: <string> ,sort: <boolean> }
+ * - columns is an array of {title: <string> ,sort: <boolean> compare: <function> }
  * 
  * - title is the title of a column we want included in the table
  * - sort is an optional field that indicates whether we should be able to sort column, columns with sort
  * set to true have a sorting button beside them in table.
+ * - You can pass a custom comparator optionally with the compare parameter if you want custom sorting
  * 
  * - Default sorting order is alphabetical order of strings
  * 
@@ -40,64 +44,95 @@ import { Link } from "react-router-dom";
 */
 
 class Table extends React.Component {
-    
+
     constructor(props) {
         super(props);
         this.state = {
             data: this.props.data,
-            columnsAscending: [true,true,true,true]
-        }
-        console.log(this.state);
-    }
-    componentWillReceiveProps(nextProps) {
-        if(nextProps.data) {
-            this.setState(nextProps);
-            console.log("nextProps",this.state.data);
+            columnsAscending: [true, true, true, true]
         }
     }
-    handleSorting = (column) => {
-        console.log("initial state",this.state.data)
-        let dataCopy = JSON.parse(JSON.stringify(this.state.data))        //array1.forEach(this.props.data => console.log(element))
-        let arr = dataCopy.columns
-        //console.log('state before sorted:', this.state.data.columns[column].content);
-        //console.log('dataCopy before sorted', dataCopy.columns[column].content)
 
+    componentDidMount() {
+        $('[data-toggle="tooltip"]').tooltip()
+    }
+
+    componentDidUpdate() {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.data) {
+            this.setState(nextProps);
+        }
+    }
+
+    handleSorting = (columnTitle) => {
+
+        let dataCopy = JSON.parse(JSON.stringify(this.state.data))
+        let arr = dataCopy.columns
+        let compareFunction = this.getColumnCompareFunction(columnTitle);
+
+        if (!compareFunction) { 
+            compareFunction = this.defaultCompareFunction;
+        }
+
+            
         //bubble sort with the weird object 2d array 
-        let n = arr[column].content.length;
-        for (let i = 0; i < n-1; i++)
-            for (let j = 0; j < n-i-1; j++)
-                if(this.state.columnsAscending[column] == true) {
-                    if (arr[column].content[j] > arr[column].content[j+1]) {
+        let columnIndex = this.getColumnIndex(columnTitle)
+        let n = arr[columnIndex].content.length;
+
+        for (let i = 0; i < n - 1; i++)
+            for (let j = 0; j < n - i - 1; j++)
+                if (this.state.columnsAscending[columnIndex] == true) {
+                    if (compareFunction(arr[columnIndex].content[j], arr[columnIndex].content[j + 1]) > 0) {
                         // swap arr[j+1] and arr[j]
-                    for(let k = 0; k < arr.length;k++) {
-                        let temp = arr[k].content[j];
-                        arr[k].content[j] = arr[k].content[j+1];
-                        arr[k].content[j+1] = temp;
+                        for (let k = 0; k < arr.length; k++) {
+                            let temp = arr[k].content[j];
+                            arr[k].content[j] = arr[k].content[j + 1];
+                            arr[k].content[j + 1] = temp;
+                        }
                     }
+                } else {
+                    if (compareFunction(arr[columnIndex].content[j], arr[columnIndex].content[j + 1]) < 0) {
+                        // swap arr[j+1] and arr[j]
+                        for (let k = 0; k < arr.length; k++) {
+                            let temp = arr[k].content[j];
+                            arr[k].content[j] = arr[k].content[j + 1];
+                            arr[k].content[j + 1] = temp;
+                        }
                     }
-            } else {
-                if (arr[column].content[j] < arr[column].content[j+1]) {
-                    // swap arr[j+1] and arr[j]
-                for(let k = 0; k < arr.length;k++) {
-                    let temp = arr[k].content[j];
-                    arr[k].content[j] = arr[k].content[j+1];
-                    arr[k].content[j+1] = temp;
                 }
-                }
-            }
         let columnsAscendingCopy = [...this.state.columnsAscending];
-        columnsAscendingCopy[column] = !columnsAscendingCopy[column]
-        this.setState({data:dataCopy,columnsAscending:columnsAscendingCopy})
-                //this.setState(this.props.data.columns[i].content); 
-        //console.log('state after sorted:', this.state.data.columns[column].content);
-        //console.log('dataCopy after sorted', dataCopy.columns[column].content)
-      }
+        columnsAscendingCopy[columnIndex] = !columnsAscendingCopy[columnIndex]
+        this.setState({ data: dataCopy, columnsAscending: columnsAscendingCopy })
+    }
+
+    defaultCompareFunction(a,b) { 
+
+        if (typeof a === "string") {
+            a = a.toLowerCase();
+        } else if (typeof a === "object" && Object.keys(a)[0] === "truncatedContent") {
+            a = a.truncatedContent.fullVersion.toLowerCase();
+        }
+
+        if (typeof b === "string") {
+            b = b.toLowerCase();
+        } else if (typeof b === "object" && Object.keys(b)[0] === "truncatedContent") {
+            b = b.truncatedContent.fullVersion.toLowerCase();
+        }
+    
+        if (a > b) return 1;
+        else if (a < b) return -1;
+        else return 0;
+    }
+
     render() {
         if (this.props.loading) {
             return (
                 <div className="vertical-horizontal-center">
-                    <div className="spinner-border text-primary" style={{width: "6rem", height: "6rem"}}
-                    role="status">
+                    <div className="spinner-border text-primary" style={{ width: "6rem", height: "6rem" }}
+                        role="status">
                         <span className="sr-only">Loading...</span>
                     </div>
                 </div>
@@ -124,16 +159,16 @@ class Table extends React.Component {
     renderTableHeader() {
         return (
             <tr>
-                {this.state.data.columns.map((column, i) => { 
+                {this.state.data.columns.map((column, i) => {
                     if (this.renderColumn(column.title)) {
-                        return ( 
+                        return (
                             <th key={i}>
                                 {column.title}
-                                {this.addSortButtonToColumn(column.title)? 
-                                <button className="btn-group-vertical float-right" onClick={() => this.handleSorting(i)}>
-                                    <span>&#9650;</span> 
-                                </button> :
-                                                            <span></span>}
+                                {this.addSortButtonToColumn(column.title) ?
+                                    <button className="btn-group-vertical float-right" onClick={() => this.handleSorting(column.title)}>
+                                        <span>&#9650;</span>
+                                    </button> :
+                                    <span></span>}
                             </th>
                         );
                     }
@@ -145,22 +180,22 @@ class Table extends React.Component {
     renderTableBody() {
         return (
             [...Array(this.state.data.numRows).keys()].map((i) => {
-                return <tr key={i} >{this.renderRow(i)}</tr>;               
+                return <tr key={i} >{this.renderRow(i)}</tr>;
             })
         )
     }
 
     renderRow(i) {
         return (
-            this.state.data.columns.map((current, j) => { 
+            this.state.data.columns.map((current, j) => {
                 if (this.renderColumn(current.title)) {
                     return (
-                        <td key={j}> 
+                        <td key={j} className="text-left">
                             {this.renderCell(current.content[i])}
-                         </td>
+                        </td>
                     )
                 }
-            })  
+            })
         )
     }
 
@@ -170,36 +205,60 @@ class Table extends React.Component {
             return "";
         }
         if (type === "string") {
-            return cell;
+            return cell
         } else if (type === "object") {
-            if (Object.keys(cell)[0] === "button") {
-                let data = cell.button.data ? cell.button.data : null;
-                return (
-                    <div>
-                        <Link 
-                            className="btn btn-primary"
-                            role="button"
-                            to={{pathname:cell.button.link, state: data}}>
-                            {cell.button.displayName}
-                        </Link>
-                    </div>)
+            switch (Object.keys(cell)[0]) {
+                case "button":
+                    let data = cell.button.data ? cell.button.data : null;
+                    return (
+                        <div className="d-flex justify-content-left">
+                            <Link
+                                className="btn btn-primary"
+                                role="button"
+                                to={{ pathname: cell.button.link, state: data }}>
+                                {cell.button.displayName}
+                            </Link>
+                        </div>)
+                case "truncatedContent":
+                    return <span data-toggle="tooltip" data-placement="right" title={cell.truncatedContent.fullVersion}>
+                        {cell.truncatedContent.truncatedVersion}
+                    </span>
             }
         }
     }
 
     renderColumn(columnName) {
         let columnsToShow = this.props.columns;
-        return !columnsToShow || columnsToShow.map(({title}) => title).includes(columnName);
+        return !columnsToShow || columnsToShow.map(({ title }) => title).includes(columnName);
     }
 
     addSortButtonToColumn(columnName) {
         let columnsToShow = this.props.columns;
-        for(let {title, sort} of columnsToShow) {
+        for (let { title, sort } of columnsToShow) {
             if (columnName == title && sort) {
                 return true;
             }
-        } 
+        }
         return false;
+    }
+
+    getColumnCompareFunction(columnTitle) {
+        let columnsToShow = this.props.columns;
+        for (let {title, sort, compare} of columnsToShow) {
+            if (title === columnTitle && sort && compare) {
+                return compare;
+            }
+        }
+    }
+
+    getColumnIndex(columnTitle) {
+        let columns = this.state.data.columns;
+        for (let i = 0; i < columns.length; i++) {
+            let currentColumn = columns[i];
+            if (currentColumn.title === columnTitle) {
+                return i;
+            }
+        }
     }
 
 }
