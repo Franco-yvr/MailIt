@@ -61,6 +61,45 @@ context("Assertions", () => {
       cy.contains("At least one field is empty. Please fill in both fields to continue.");
     });
 
+    it('clicking Submit template with wrong file gives error', () => {
+
+      // login
+      cy.get('#email')
+        .should('be.visible')
+        .type('mountainSasquatch00@gmail.com');
+      cy.get('#password')
+        .should('be.visible')
+        .type('teamMailIt!');
+      cy.get('button[type="submit"]')
+        .should('be.visible')
+        .click();
+
+      cy.wait(5000);
+
+      // upload template
+      cy.fixture('testcypress.csv').then(fileContent => {
+        cy.get('input[type="file"]').attachFile({
+          fileContent: fileContent.toString(),
+          fileName: 'testcypress.csv',
+          mimeType: 'text/csv'
+        });
+      });
+
+      cy.get('#template-name')
+        .should('be.visible')
+        .type('testcypress');
+
+      //click submit
+      cy.get('#SubmitTemplate')
+        .should('be.visible')
+        .click();
+
+        cy.wait(50000);
+
+
+      cy.contains("Wrong template file type. Upload a .doc or .docx file");
+    });
+
     it('clicking Submit template with file and name generate fails if template name has .docx', () => {
 
       // login

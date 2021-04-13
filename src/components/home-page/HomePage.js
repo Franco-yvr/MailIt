@@ -3,7 +3,7 @@ import TemplateLogTable from "./TemplateLogTable";
 import HomePageRight from "./HomePageRight";
 import "../../styles/HomePage.css"
 import {Redirect} from "react-router";
-import useCheckUser from "../login/useCheckUser";
+import {Link} from "react-router-dom";
 
 
 class HomePage extends React.Component {
@@ -33,9 +33,23 @@ class HomePage extends React.Component {
 			console.log("please");
 			this.id += 1;
 			return (
-				<div className="scroll container-fluid" style={{"max-width": "100%"}}>
-					<HomePageRight onUploadSuccess={this.onUploadSuccess}/>
-					<TemplateLogTable id={this.id}/>
+				<div>
+				<div className="d-flex justify-content-end">
+					<Link
+						role="button"
+						id="logOutButton"
+						to={"/"}
+						className="btn btn-primary mr-1 mt-1"
+						>
+						Log out
+					</Link>
+				</div>
+				<div className="container-fluid" >
+					<div className="row">
+						<HomePageRight onUploadSuccess={this.onUploadSuccess}/>
+						<TemplateLogTable id={this.id}/>
+					</div>
+				</div>
 				</div>
 			);
 		}

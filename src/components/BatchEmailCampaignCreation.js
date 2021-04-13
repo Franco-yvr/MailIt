@@ -25,16 +25,18 @@ class BatchEmailCampaignCreation extends React.Component {
 			<div>
 				<div className="row mt-5"></div>
 				<div className="row justify-content-space-evenly pl-4">
-					<img src={multipleUserLogo} className="img-rounded" width="50" height="50" />
-
+					<img src={multipleUserLogo} className="img-rounded" width="50" height="70" />
+					<h5>Batch Email Campaign</h5>
+				</div>
+				<div className="row my-row10">
+					{"Sends email to multiple email addresses and dynamic values through csv file"}
 				</div>
 				<div className="row my-row1">
 					<div>{"Please submit a .csv file formatted similar to this: "}</div>
 					<Link to="/files/Example_File.csv" target="_blank" download>&nbsp;{"example file."}</Link>
 				</div>
-				<div className="row justify-content-space-evenly my-row1">
-					<div className="input-group mb-1">
-						
+				<div className="row justify-content-space-evenly my-row10">
+					<div className="input-group mb-1">						
                 	<form>
                     	<div className="form-group">
                         	<input type="file" className="form-control-file" id="fileUploadButton" onChange={this.onFileUpload}/>
@@ -58,7 +60,7 @@ class BatchEmailCampaignCreation extends React.Component {
 					</div>
 				</div>
 				
-				<div className="row justify-content-end my-row1 button-spacing mb-1 ">
+				<div className="row justify-content-right my-row1 mb-1 button-spacing">
 					<button 
 						type="button" 
 						className="btn btn-success " 

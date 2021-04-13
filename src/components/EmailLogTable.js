@@ -45,7 +45,6 @@ class EmailLogTable extends React.Component {
 
         axios(config)
             .then(response => {
-                this.sortEmailLogs(response.data);
                 console.log(response);
                 let table = this.dataToTable(response.data);
                 this.setState({table: table})
@@ -69,14 +68,19 @@ class EmailLogTable extends React.Component {
             return <Redirect to="/"/>
         } else {
             return (
-                <div className="scroll container-fluid" style={{"max-width": "100%"}}>
-                    <div className="float-left col-lg-3 ">
+                <div>
+                <div className="d-flex justify-content-end">
                         <Link
-                            className="btn btn-primary mt-5 ml-5 mr-5 mb-5 "
                             role="button"
                             id="logOutButton"
-                            to={"/"}>Log Out
+                            to={"/"}
+                            className="btn btn-primary mr-1 mt-1"
+                            >
+                            Log out
                         </Link>
+				</div>
+                <div className="scroll container-fluid" style={{"max-width": "100%"}}>
+                    <div className="float-left col-lg-3 ">
                         <Link 
                             className="btn btn-primary d-block mt-5 ml-5 mr-5 mb-5"
                             role="button"
@@ -99,7 +103,8 @@ class EmailLogTable extends React.Component {
                         })}/> : 
                         <Table loading={true}/>}
                     </div>
-                </div>     
+                </div>  
+                </div>   
             );
         }
     }
@@ -111,7 +116,7 @@ class EmailLogTable extends React.Component {
             {displayName:"Email Address", apiName: "EmailAddress"}, 
             {displayName:"Delivery Status", apiName: "DeliveryStatus"}, 
             {displayName:"Open Status", apiName: "OpenedStatus"}, 
-            {displayName:"Clicked Link Status", apiName: "ClickedLinkStatus"},
+            {displayName:"Has A Link Been Clicked?", apiName: "ClickedLinkStatus"},
         ];
         let table = {columns: []};
         if (data.statusCode === 200) {
@@ -137,42 +142,31 @@ class EmailLogTable extends React.Component {
            let apiName = columnTitle.apiName;
             switch (columnTitle.displayName) {
                 case "Message Id": {
-                    let value = row[apiName].toString();
-                    content.push(value);
+                    content.push(row['MessageId']);
                     break;
                 }
                 case "Sent Date": {
-                    let value = row[apiName];
-                    if (value) {
-                        let dateObj = new Date(value);
-                        var date = dateObj.getDate();
-                        var month = dateObj.getMonth() + 1; // Since getMonth() returns month from 0-11 not 1-12
-                        var year = dateObj.getFullYear();
-                            
-                        var dateString = date + "/" + month + "/" + year;
-                        content.push(dateString);
-                    } else {
-                        content.push(" ");
-                    }
+                    let value = row['SentDateTime'];
+                    content.push(value);
                     break;
                 }
                 case "Email Address": {
-                    let value = row[apiName].toString();
+                    let value = row['EmailAddress'];
                     content.push(value);
                     break;
                 }
                 case "Delivery Status": {
-                    let value = row[apiName].toString();
+                    let value = row['DeliveryStatus'].toString();
                     content.push(value);
                     break;
                 }
                 case "Open Status": {
-                    let value = row[apiName].toString();
+                    let value = row['OpenedStatus'].toString();
                     content.push(value);
                     break;
                 }
-                case "Clicked Link Status": {
-                    let value = row[apiName].toString();
+                case "Has A Link Been Clicked?": {
+                    let value = row['ClickedLinkStatus'].toString();
                     content.push(value);
                     break;
                 }
@@ -192,14 +186,6 @@ class EmailLogTable extends React.Component {
                 return column;
             }
         }
-    }
-
-    sortEmailLogs(emailLogs) {
-        emailLogs.body.Items.sort((a, b) => {
-            let dateA = new Date(a.SentDateTime);
-            let dateB = new Date(b.SentDateTime)
-            return dateB - dateA;
-        });
     }
 
 

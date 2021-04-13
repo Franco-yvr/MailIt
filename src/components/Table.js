@@ -49,7 +49,8 @@ class Table extends React.Component {
         super(props);
         this.state = {
             data: this.props.data,
-            columnsAscending: [true, true, true, true]
+            columnsAscending: [true, true, true, true],
+            sortColumn: null
         }
     }
 
@@ -105,7 +106,7 @@ class Table extends React.Component {
                 }
         let columnsAscendingCopy = [...this.state.columnsAscending];
         columnsAscendingCopy[columnIndex] = !columnsAscendingCopy[columnIndex]
-        this.setState({ data: dataCopy, columnsAscending: columnsAscendingCopy })
+        this.setState({ data: dataCopy, columnsAscending: columnsAscendingCopy, sortColumn: columnIndex})
     }
 
     defaultCompareFunction(a,b) { 
@@ -162,7 +163,7 @@ class Table extends React.Component {
                 {this.state.data.columns.map((column, i) => {
                     if (this.renderColumn(column.title)) {
                         return (
-                            <th key={i}>
+                            <th key={i} className={this.isSortColumn(column.title)? "bg-secondary text-white" : ""}>
                                 {column.title}
                                 {this.addSortButtonToColumn(column.title) ?
                                     <button className="btn-group-vertical float-right" onClick={() => this.handleSorting(column.title)}>
@@ -175,6 +176,10 @@ class Table extends React.Component {
                 })}
             </tr>
         )
+    }
+
+    isSortColumn(columnTitle) {
+        return this.getColumnIndex(columnTitle) === this.state.sortColumn;
     }
 
     renderTableBody() {

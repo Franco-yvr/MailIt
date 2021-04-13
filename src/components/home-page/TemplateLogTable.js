@@ -2,12 +2,7 @@ import React from "react";
 import axios from 'axios';
 
 import Table from "../Table"
-import CheckList from "../CheckList"
-import { checkServerIdentity } from "tls";
-import { DataExchange } from "aws-sdk";
 
-
-const DATA_LINK = "https://cif088g5cd.execute-api.us-east-1.amazonaws.com/v1/logs"
 const MAX_DYNAMIC_VALUES_SHOWN = 3; //maximum number of dynamic values shown before truncation
 const MAX_FILENAME_STRING_CHARACTERS_SHOWN = 20;
 const MAX_TEMPLATE_NAME_STRING_CHARACTERS_SHOWN = 20;
@@ -67,10 +62,11 @@ class TemplateLogTable extends React.Component {
         let table = this.state.table;
         let columnsProp = this.getColumnsPropToTable();
         return ( 
-            <div className="float-left col-lg-9 pl-0 pr-1">
+            <div className="col-lg-9">
                 <h1 className="mt-2">Template logs</h1>
                 {table? <Table data={table} 
-                columns={columnsProp}/> : 
+                columns={columnsProp}
+                className="ml-1"/> : 
                 <Table loading={true}/>}
             </div>        
         );

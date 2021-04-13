@@ -78,8 +78,11 @@ class CampaignPage extends React.Component {
                             </Link>
                             <div className="row my-row1"></div>
                             <div className="row justify-content-space-evenly my-row mt-5 mb-2">
-                                <img src={userLogo} className="img-rounded" width="30" height="30" />
-
+                                <img src={userLogo} className="img-rounded" width="30" height="30"/>
+                                <h5>Single Email Campaign</h5>
+                            </div>
+                            <div className="row my-row10">
+                            {"Sends email to specified email address with template using the given dynamic values"}
                             </div>
                             <div className="form-group">
                                 <div className="row justify-content-space-evenly my-row2">

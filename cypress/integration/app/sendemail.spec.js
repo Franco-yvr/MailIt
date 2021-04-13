@@ -138,7 +138,7 @@ context("Assertions", () => {
       cy.wait(5000);
 
       cy.get('table').contains('td', "gXXXXXXXXXX");
-      //cy.get('table').contains('td', "MountainSasquatch00@gmail.com");
+      cy.get('table').contains('td', "MXXXXXXXXXX");
     });
 
     it('login success and send email fail test', () => {
