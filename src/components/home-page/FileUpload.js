@@ -31,8 +31,8 @@ class FileUpload extends React.Component {
         this.onFileRemove = this.onFileRemove.bind(this);
     }
     SubmitTemplate = () => (
-        <>
-            <p className="mt-5 text-center">New Template:</p>
+        <div className="text-center">
+            <p className="mt-5 text-center">Upload Template</p>
             {this.state.message != null ?
                 <div
                     className={
@@ -54,7 +54,7 @@ class FileUpload extends React.Component {
             }
 
             <form>
-                <div className="form-group">
+                <div className="form-group pb-5">
                     <input type="file" className="form-control-file my-row2" id="fileUploadButton" onChange={this.onFileChange} />
                 </div>
                 <div className="row justify-content-space-evenly my-row2">
@@ -76,12 +76,12 @@ class FileUpload extends React.Component {
             </form>
 
             <button className="btn btn-primary btn-block mt-5" id='SubmitTemplate' onClick={this.onFileUpload}> Submit Template</button>
-        </>
+        </div>
     )
 
 
     RemoveTemplate = () => (
-        <>
+        <div>
             <p className="mt-5 text-center">Remove a Template</p>
             {this.state.removal_message != null ?
                 <div
@@ -121,30 +121,24 @@ class FileUpload extends React.Component {
             </div>
 
             <button className="btn btn-primary btn-block mt-5" id='RemoveTemplate' onClick={this.onFileRemove}> Remove Template </button>
-        </>
+        </div>
     )
 
 
     render() {
         return (
-
             <div>
-                <div class="dropdown">
+                <div class="dropdown text-center">
                     <button class="btn btn-primary dropdown-toggle mt-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Submit/Remove Template
-  </button>
+                    </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <a class="dropdown-item" onClick={() => this.setState({ setVisible: true })}>Submit Template</a>
                         <a class="dropdown-item" id="RemoveTemplateDropDown" onClick={() => this.setState({ setVisible: false })}>Remove Template</a>
                     </div>
                 </div>
                 {this.state.setVisible ? this.SubmitTemplate() : this.RemoveTemplate()}
-
-
-
             </div>
-
-
         )
     }
 
