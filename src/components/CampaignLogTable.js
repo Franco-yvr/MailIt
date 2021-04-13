@@ -12,7 +12,7 @@ class CampaignLogTable extends React.Component {
                                "No. of People Emailed", 
                                "No. of Emails Successfully Delivered", 
                                "No. of Opened Emails",
-                               "No. of Links Opened ",
+                               "No. of Links Opened",
                                "Email Log"];
         this.sortableColumns = ["CampaignId",  "Date of Campaign Launch"];
         this.state = {
@@ -108,7 +108,7 @@ class CampaignLogTable extends React.Component {
             {displayName:"No. of People Emailed", apiName: "NumEmailed"}, 
             {displayName:"No. of Emails Successfully Delivered", apiName: "NumSuccessfullyDelivered"},
             {displayName:"No. of Opened Emails", apiName: "NumOpened"},
-            {displayName:"No. Of Emails With At Least One Clicked Link", apiName: "NumLinks"},
+            {displayName:"No. of Links Clicked", apiName: "NumLinks"},
             {displayName:"Email Log", apiName: ""}
         ];
 
