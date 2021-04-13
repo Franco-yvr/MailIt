@@ -25,7 +25,7 @@ function App() {
                         //TODO: setting true as current code issue. This should be fixed as discussed
                         <Route path="/" component={LoginPage} exact/>
                         <Route exact path="/HomePage"><HomePage user={true}/></Route>
-                        <Route path="/campaignPage/:templateKey" 
+                        <Route path="/campaignPage/:templateName" 
                                render={(props) => (
                                  <CampaignPage {...props} user={true}/>)
                                }>

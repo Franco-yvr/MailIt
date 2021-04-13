@@ -45,6 +45,7 @@ class EmailLogTable extends React.Component {
 
         axios(config)
             .then(response => {
+                this.sortEmailLogs(response.data);
                 console.log(response);
                 let table = this.dataToTable(response.data);
                 this.setState({table: table})
@@ -85,6 +86,7 @@ class EmailLogTable extends React.Component {
                         <Link 
                             className="btn btn-primary d-block mt-5 ml-5 mr-5 mb-5"
                             role="button"
+                            id="homepagebutton"
                             to={"/HomePage"}>
                             {"Return to Home Page"}
                         </Link>
@@ -135,31 +137,42 @@ class EmailLogTable extends React.Component {
            let apiName = columnTitle.apiName;
             switch (columnTitle.displayName) {
                 case "Message Id": {
-                    content.push(row['MessageId']);
-                    break;
-                }
-                case "Sent Date": {
-                    let value = row['SentDateTime'];
+                    let value = row[apiName].toString();
                     content.push(value);
                     break;
                 }
+                case "Sent Date": {
+                    let value = row[apiName];
+                    if (value) {
+                        let dateObj = new Date(value);
+                        var date = dateObj.getDate();
+                        var month = dateObj.getMonth() + 1; // Since getMonth() returns month from 0-11 not 1-12
+                        var year = dateObj.getFullYear();
+                            
+                        var dateString = date + "/" + month + "/" + year;
+                        content.push(dateString);
+                    } else {
+                        content.push(" ");
+                    }
+                    break;
+                }
                 case "Email Address": {
-                    let value = row['EmailAddress'];
+                    let value = row[apiName].toString();
                     content.push(value);
                     break;
                 }
                 case "Delivery Status": {
-                    let value = row['DeliveryStatus'].toString();
+                    let value = row[apiName].toString();
                     content.push(value);
                     break;
                 }
                 case "Open Status": {
-                    let value = row['OpenedStatus'].toString();
+                    let value = row[apiName].toString();
                     content.push(value);
                     break;
                 }
                 case "Clicked Link Status": {
-                    let value = row['ClickedLinkStatus'].toString();
+                    let value = row[apiName].toString();
                     content.push(value);
                     break;
                 }
@@ -179,6 +192,14 @@ class EmailLogTable extends React.Component {
                 return column;
             }
         }
+    }
+
+    sortEmailLogs(emailLogs) {
+        emailLogs.body.Items.sort((a, b) => {
+            let dateA = new Date(a.SentDateTime);
+            let dateB = new Date(b.SentDateTime)
+            return dateB - dateA;
+        });
     }
 
 
