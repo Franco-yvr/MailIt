@@ -171,7 +171,7 @@ class CampaignLogTable extends React.Component {
                     break;
                 }
 
-                case "No. Of Emails With At Least One Clicked Link" : {
+                case "No. of Links Clicked" : {
                     content.push(row[columnTitle.apiName].toString());
                     break;
                 }
