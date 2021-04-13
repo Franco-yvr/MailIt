@@ -14,6 +14,8 @@ import { object } from "prop-types";
  * <column> ::= {title: <string>, content:[list of <content>]}
  * <content> := <string> | <button> | <truncatedContent> 
  * <button> ::= {button: {displayName: <string>, link: <string>}}
+ * link should be string in the form of an HTML link e.g "/HomePage"
+ * button links to the route given by link
  * <truncatedContent> ::= {truncatedContent: {truncatedVersion:<string>, fullVersion: <string>}}
  * 
  * - link should be string in the form of an HTML link e.g "/HomePage"
@@ -202,10 +204,10 @@ class Table extends React.Component {
         )
     }
 
-    renderCell(cell) {
+    renderCell(cell, row) {
         let type = typeof cell;
-        if (cell == null) {
-            return "null";
+        if(cell == null) {
+            return "";
         }
         if (type === "string") {
             return cell

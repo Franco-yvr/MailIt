@@ -31,10 +31,9 @@ class BatchEmailCampaignCreation extends React.Component {
 				<div className="row my-row10">
 					{"Sends email to multiple email addresses and dynamic values through csv file"}
 				</div>
-
-				<div className="row my-row10">
-					{"Please submit a .csv file formatted similar to this :"}
-					<Link to="/Example_File.csv" target="_blank" download>{"example file."}</Link>
+				<div className="row my-row1">
+					<div>{"Please submit a .csv file formatted similar to this: "}</div>
+					<Link to="/files/Example_File.csv" target="_blank" download>&nbsp;{"example file."}</Link>
 				</div>
 				<div className="row justify-content-space-evenly my-row10">
 					<div className="input-group mb-1">						
