@@ -97,7 +97,7 @@ context("Assertions", () => {
         cy.wait(50000);
 
 
-      cy.contains("Wrong template file type. Upload a .doc or .docx file");
+      cy.contains("Wrong template file type. Please upload a .docx file");
     });
 
     it('clicking Submit template with file and name generate fails if template name has .docx', () => {

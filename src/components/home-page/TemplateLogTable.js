@@ -3,7 +3,6 @@ import axios from 'axios';
 
 import Table from "../Table"
 
-const MAX_DYNAMIC_VALUES_SHOWN = 3; //maximum number of dynamic values shown before truncation
 const MAX_FILENAME_STRING_CHARACTERS_SHOWN = 20;
 const MAX_TEMPLATE_NAME_STRING_CHARACTERS_SHOWN = 20;
 const MAX_DYNAMIC_VALUE_STRING_CHARACTER_SHOWN = 30;
@@ -15,7 +14,6 @@ class TemplateLogTable extends React.Component {
         this.sortableColumns = ["File Name",  "Template Name", "Upload Date"];
         this.state = {table: null, columns: []};
         this.getTableData = this.getTableData.bind(this);
-        this.onSelectedColumnsChange = this.onSelectedColumnsChange.bind(this);
     }
 
     componentDidMount() {
@@ -23,20 +21,17 @@ class TemplateLogTable extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.id != prevProps.id) {
+        if (this.props.id !== prevProps.id) {
             this.getTableData()
         }
     }
 
+    //Retrieve Template logs from tTemplateLog DynamoDb to create a table
     getTableData() {
-        // var data = JSON.stringify({
-        //     "min": 0,
-        //     "max": 5
-        // });
           
        var config = {
             method: 'get',
-            url: 'https://cif088g5cd.execute-api.us-east-1.amazonaws.com/v1/logs',
+            url: 'https://cif088g5cd.execute-api.us-east-1.amazonaws.com/v1/template-logs',
             headers: { 
               'Content-Type': 'application/json',
               'x-api-key': process.env.REACT_APP_AWS_TEMPLATE_LOG_API_KEY
@@ -54,7 +49,7 @@ class TemplateLogTable extends React.Component {
             })})
           })
           .catch(function (error) {
-            console.log(error);
+            console.log("Get Table Data Error",error);
         });   
     }
 
@@ -72,11 +67,12 @@ class TemplateLogTable extends React.Component {
         );
     }
 
+    //This generates the prop for telling the table which columns should be sortable
     getColumnsPropToTable() {
         return this.state.columns.map((column) => {
-            let columnProp = {title: column, sort: this.sortableColumns.includes(column)}
+            let columnToSort = {title: column, sort: this.sortableColumns.includes(column)}
             if (column === "Upload Date") {
-                columnProp["compare"] = function (dateA, dateB) {
+                columnToSort["compare"] = function (dateA, dateB) {
                     let DMY_A = dateA.split("/");
                     let DMY_B = dateB.split("/");
                     let dateObjA = new Date(DMY_A[2], DMY_A[1], DMY_A[0]);
@@ -84,20 +80,11 @@ class TemplateLogTable extends React.Component {
                     return dateObjA - dateObjB;                     
                 }
             }
-            return columnProp;
+            return columnToSort;
         })
     }
 
-    onSelectedColumnsChange(checkedStates) {
-        let additionalColumns = [];
-        for (let {value, checked} of checkedStates) {
-            if (checked) {
-                additionalColumns.push(value);
-            }
-        }
-        this.setState({columns: this.defaultColumns.concat(additionalColumns)})
-    }
-
+    //Convert response data from /template-logs api to a table
     dataToTable(data) {
         let columnTitles = [
             {displayName:"File Name", apiName: "S3Key"}, 
@@ -113,7 +100,7 @@ class TemplateLogTable extends React.Component {
                 let columnTitle = columnTitles[i];
                 table.columns.push({
                     title: columnTitle.displayName,
-                    content: this.getContent(columnTitle, data)
+                    content: this.getCellContent(columnTitle, data)
                 });
             }
         } else {
@@ -127,28 +114,13 @@ class TemplateLogTable extends React.Component {
         return table;
     }
 
-    // truncateDynamicValues(table) {
-    //     let dynamicValuesColumn = this.getColumnWithDisplayName("Dynamic Values", table);
-    //     let content = dynamicValuesColumn.content;
-    //     for (let i = 0; i < content.length; i++) {
-    //         let row = content[i];
-    //         let dynamicValues = row.split(",");
-    //         if (dynamicValues.length > MAX_DYNAMIC_VALUES_SHOWN) {
-    //             content[i] = {truncatedContent: {truncatedVersion: this.truncateDynamicValuesRow(row), 
-    //                 fullVersion: row}}
-    //         }
-    //     }
-    //     dynamicValuesColumn = this.getColumnWithDisplayName("Dynamic Values", table); 
-    // }
-
-    // truncateDynamicValuesRow(row) {
-    //     let dynamicValues = row.split(",");
-    //     let dynamicValuesShown = dynamicValues.slice(0, MAX_DYNAMIC_VALUES_SHOWN);
-    //     let stringVersion = dynamicValuesShown.join(",");
-    //     return stringVersion + "...";
-    // }
-
-    getContent(columnTitle, data) {
+    /**
+ 	* Set the content of a cell
+ 	* @param {columnTitle} - string
+    * @param {data} - string
+ 	}}
+ 	*/
+    getCellContent(columnTitle, data) {
         let content = [];
         for (let row of data.body) {
            let apiName = columnTitle.apiName;
@@ -168,7 +140,7 @@ class TemplateLogTable extends React.Component {
                 }
                 case "Create Email Campaign": {
                     let value = row[columnTitle.apiName];
-                    if (value == "Ready") {
+                    if (value === "Ready") {
                         content.push({button: {displayName:"Start", link:"", data: ""}});
                     } else {
                         content.push(value);
@@ -200,8 +172,6 @@ class TemplateLogTable extends React.Component {
                     let maybeTruncatedContent = this.getTruncatedContentIfTooLong(templateName, MAX_TEMPLATE_NAME_STRING_CHARACTERS_SHOWN);
                     content.push(maybeTruncatedContent);
                     break;
-                } case "Team": {
-                    
                 }
 
                 default:
@@ -213,20 +183,38 @@ class TemplateLogTable extends React.Component {
         return content;
     }
 
+    /**
+ 	* Retrieve truncated content object if content exceeds max_length
+ 	* @param {content} - string
+    * @param {max_length} - string
+ 	}}
+ 	*/
     getTruncatedContentIfTooLong(content, max_length) {
         if (content && (content.length > max_length)) {
-            let truncatedFilename = this.truncateString(content, max_length);
-            return {truncatedContent: {truncatedVersion: truncatedFilename,
+            let truncatedString = this.truncateString(content, max_length);
+            return {truncatedContent: {truncatedVersion: truncatedString,
             fullVersion: content}};
         } else {
             return content;
         }
     }
 
+    /**
+ 	* Method to  truncate a string given the number of characters to show
+ 	* @param {str} - string
+    * @param {numCharactersToChow} - number
+ 	}}
+ 	*/
     truncateString(str, numCharactersToShow) {
         return str.slice(0, numCharactersToShow) + "...";
     }
 
+    /**
+ 	* Populate content objects for column that will be linked to Campaign page 
+    * which will be used to create a button associated with a Link object
+ 	* @param {table} - Array[Object]
+ 	}}
+ 	*/
     addLinksToCampaignPage(table) {
         let fileNameColumn = this.getColumnWithDisplayName("File Name", table);
         
@@ -270,6 +258,12 @@ class TemplateLogTable extends React.Component {
         }
     }
 
+    /**
+ 	* Populate content objects for column that will be linked to Campaign Log Table page 
+    * which will be used to create a button associated with a Link object
+ 	* @param {table} - Array[Object]
+ 	}}
+ 	*/
     addLinksToCampaignLogTable(table) {
         let templateNameColumn = this.getColumnWithDisplayName("Template Name", table);
         let CampaignLogsColumn = this.getColumnWithDisplayName("Campaign Logs", table);
@@ -290,6 +284,12 @@ class TemplateLogTable extends React.Component {
         }
     }
 
+    /**
+ 	* Get the column data using the display name of the table
+ 	* @param {displayName} - string
+    * @param {table} - Array[Object]
+ 	}}
+ 	*/
     getColumnWithDisplayName(displayName, table) {
         for (let column of table.columns) {
             if (column.title === displayName) {
@@ -298,6 +298,11 @@ class TemplateLogTable extends React.Component {
         }
     }
 
+    /**
+ 	* Sort the template log data by data
+ 	* @param {templateLogs} - Array[Object]
+ 	}}
+ 	*/
     sortTemplateLogs(templateLogs) {
         templateLogs.body.sort((a, b) => {
             let dateA = new Date(a.DocUploadDateTime);
@@ -306,6 +311,11 @@ class TemplateLogTable extends React.Component {
         });
     }
 
+    /**
+ 	* Convert an array of dynamic values to a comma seperated string in the UI
+ 	* @param {dynamicValueString} - Array[Object]
+ 	}}
+ 	*/
     arrayToCommaSeperatedString(dynamicValueString) {
         let newString = dynamicValueString
                             .replace("]", "");
@@ -313,6 +323,11 @@ class TemplateLogTable extends React.Component {
         return newString;
     }
 
+    /**
+ 	* Convert an comma seperated string in the UI to a dynamic value array
+ 	* @param {dynamicValueString} - Array[Object]
+ 	}}
+ 	*/
     commaSeperatedStringToArray(dynamicValueString) {
         return "[" + dynamicValueString + "]";
     }
