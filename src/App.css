@@ -22,6 +22,9 @@
 body{
   margin:30px, 
 }
+.dynamic-value-key-container {
+  max-width:500px;
+}
 .button-spacing {
     margin-right: 50px;
 }
@@ -69,6 +72,32 @@ text-align: 'center',
 }
 .my-col{
   border: 3px solid black;
+}
+.ellipsis {
+  text-overflow: ellipsis; 
+  white-space: nowrap;
+  overflow:hidden;
+  display:block
+}
+
+.scroll {
+    width: 1950px;
+}
+
+.vertical-horizontal-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 1000px;
+}
+
+.horizontal-center {
+    display: flex;
+    justify-content: center;
+}
+
+.sort {
+    font-size: 20px;
 }
 
 img {

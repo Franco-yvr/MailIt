@@ -10,7 +10,7 @@ export default function useCheckUser() {
         return new Promise((resolve, reject) => {
             Auth.currentAuthenticatedUser().then((token) => {
                 if (token) {
-                    console.log(token);
+                    //console.log(token);
                     setUser(true)
                     localStorage.setItem("user", user);
                     resolve()

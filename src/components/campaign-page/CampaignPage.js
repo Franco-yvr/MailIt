@@ -1,7 +1,7 @@
 import React from "react";
-import "../App.css";
-import userLogo from '../assets/userLogo.png';
-import sendSingleEmail from '../api-service.js'
+import "../../App.css";
+import userLogo from '../../assets/userLogo.png';
+import sendSingleEmail from '../../api-service.js'
 import BatchEmailCampaignCreation from "./BatchEmailCampaignCreation";
 import { Link } from "react-router-dom";
 import {Redirect} from "react-router";
@@ -41,7 +41,6 @@ class CampaignPage extends React.Component {
             subjectLine: "",
             authenticated: this.props.user
         }
-        console.log(this.state);
         
         this.handleEmailChange = this.handleEmailChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -87,8 +86,8 @@ class CampaignPage extends React.Component {
                             <div className="form-group">
                                 <div className="row justify-content-space-evenly my-row2">
                                     <div className="input-group mb-1">
-                                        <div className="input-group-prepend">
-                                            <span className="input-group-text">Single Email Address</span>
+                                        <div className="input-group-prepend dynamic-value-key-container" >
+                                            <span className="ellipsis input-group-text ">Single Email Address</span>
                                         </div>
                                         <input
                                             type="text"
@@ -102,8 +101,8 @@ class CampaignPage extends React.Component {
                                 </div>
                                 <div className="row justify-content-space-evenly my-row2">
                                     <div className="input-group mb-1">
-                                        <div className="input-group-prepend">
-                                            <span className="input-group-text">Subject Line</span>
+                                        <div className="input-group-prepend dynamic-value-key-container">
+                                            <span className="ellipsis input-group-text">Subject Line</span>
                                         </div>
                                         <input
                                             type="text"
@@ -118,7 +117,7 @@ class CampaignPage extends React.Component {
                                 {this.state.dynamicValues.length > 0 ?
                                     <div className="row justify-content-space-evenly my-row2">
                                         Dynamic Values
-                                        <div className="input-group mb-1">
+                                        <div className="input-group mb-1 " >
                                             {this.createDynamicValueTextFields()}
                                         </div>
                                     </div> : null }
@@ -154,10 +153,9 @@ class CampaignPage extends React.Component {
 
     async componentDidMount() {
         var s3 = new AWS.S3();
-        console.log(this.state.templateKey);
         s3.getObject({ Bucket: BUCKET_NAME, Key: this.state.templateKey }, (err, data) => {
             if (err) {
-                console.log(err);
+                console.log("Could not get Object from S3 Bucket Error",err);
                 throw err
             }
             mammoth.convertToHtml({ arrayBuffer: data.Body }).then((v, m) => {
@@ -166,13 +164,14 @@ class CampaignPage extends React.Component {
         });
     }
 
+    //Create the HTML text inputs for each dynamic value
     createDynamicValueTextFields() {
         let dynamicValueTextInputs = []
         for (var dynamicValue of this.state.dynamicValues ) {
             let textInput = 
                 <div key={dynamicValue} className="input-group mb-1">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text" id={dynamicValue}>{dynamicValue}</span>
+                    <div className="input-group-prepend dynamic-value-key-container">
+                        <span className="ellipsis input-group-text "  id={dynamicValue}>{dynamicValue}</span>
                     </div>
                     <input 
                         type="text" 
@@ -186,14 +185,29 @@ class CampaignPage extends React.Component {
         return dynamicValueTextInputs;
     }
 
+    /**
+ 	* Event handler for when the email field is changed
+ 	* @param {event} - event object
+ 	}}
+ 	*/
     handleEmailChange(event) {
         this.setState({emailAddress: event.target.value});
     }
 
+    /**
+ 	* Event handler for when the subject line field is changed
+ 	* @param {event} - event object
+ 	}}
+ 	*/
     handleSubjectLineChange(event) {
         this.setState({subjectLine: event.target.value});
     }
 
+    /**
+ 	* Event handler for when the text input for each dynamic value is changed
+ 	* @param {event} - event object
+ 	}}
+ 	*/
     handleInputChange(event) {
         var dynamicValueName = event.target.getAttribute('aria-label');
         let dynamicValueObject = {};
@@ -201,7 +215,9 @@ class CampaignPage extends React.Component {
         this.setState(dynamicValueObject);
     }
 
-    handleSubmit(event) {
+    
+ 	//Event handler for when the submit field is clicked
+    handleSubmit() {
         let dynamicValueInputs = document.getElementsByClassName('single-email');
         let emailAddressInput = document.getElementById('email-address');
         let subjectLineInput = document.getElementById('subject-line');
@@ -240,7 +256,7 @@ class CampaignPage extends React.Component {
         //Validate Dynamic Value Inputs are correctly formatted
         for(var input of dynamicValueInputs) {
             var dynamicValue = input.getAttribute("aria-label");
-            if(this.state[dynamicValue] == undefined || this.isEmptyStringOrNull(this.state[dynamicValue].trimEnd())) {
+            if(!this.state[dynamicValue] || this.isEmptyStringOrNull(this.state[dynamicValue].trimEnd())) {
                 input.classList.add("inputError");
                 emptyField = true;
             } else {

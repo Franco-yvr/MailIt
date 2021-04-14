@@ -1,25 +1,21 @@
 // Authentification
 import '../../App.css';
-import {Auth, Hub} from 'aws-amplify';
-import React, {useState, useEffect} from "react";
+import {Auth} from 'aws-amplify';
+import React, {useState} from "react";
 
 // material-ui
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Paper from '@material-ui/core/Paper';
-import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import {Redirect} from "react-router";
-import PropTypes from 'prop-types';
-import useCheckUser from "./useCheckUser";
+//import useCheckUser from "./useCheckUser";
 
 const initialFormState = {
     username: "", email: "", password: "", confirmPassword: "", newPassword: "", authCode: "", formType: "signIn"
@@ -62,7 +58,7 @@ function LoginPage() {
     const [formState, updateFormState] = useState(initialFormState)
     const [showErrorMsg,setShowErrorMsg] = useState(false); 
     const [errorMsg,setErrorMsg] = useState("");
-    const { user, checkUser } = useCheckUser();
+    //const { user, checkUser } = useCheckUser();
     function onChange(e) {
         e.persist()
         updateFormState(() => ({...formState, [e.target.name]: e.target.value}))
@@ -70,6 +66,11 @@ function LoginPage() {
 
     const {formType} = formState
 
+    /**
+ 	* Event handler for when the sign in button is clicked
+ 	* @param {event} - event object
+ 	}}
+ 	*/
     async function signIn(e) {
         e.preventDefault()
         setShowErrorMsg(false);
@@ -87,7 +88,7 @@ function LoginPage() {
                 // const user  = await Auth.currentAuthenticatedUser();
                     // .then((boolean)=>{ console.log})
                 updateFormState(() => ({...formState, formType: "signedIn"}))
-                checkUser();
+                //checkUser();
                 // console.log(updateUser)
                 // updateUser(user)
             } catch (error) {
@@ -96,11 +97,21 @@ function LoginPage() {
         }
     }
 
+    /**
+ 	* Set confirm credentials
+ 	* @param {e} - event object
+ 	}}
+ 	*/
     function confirmCredentials(e) {
         e.preventDefault()
         updateFormState(() => ({...formState, formType: "confirmCredentials"}))
     }
 
+    /**
+ 	* Determine which error message is rendered given an error object
+ 	* @param {error} - error object
+ 	}}
+ 	*/
     const signInErrorMessageProcessing = (error) => {
             setShowErrorMsg(true);
             switch(error.message) {
@@ -119,6 +130,11 @@ function LoginPage() {
             console.log('Authentication error:', error);
     }
 
+    /**
+ 	* Temporary Password Update and Login
+ 	* @param {error} - error object
+ 	}}
+ 	*/
     async function confirmAndSignIn(e) {
         e.preventDefault();
         setShowErrorMsg(false);
@@ -136,11 +152,9 @@ function LoginPage() {
                         user,               // the Cognito User Object
                         newPassword,       // the new password
                     ).then(user => {
-                        console.log("made it");
                         updateFormState(() => ({...formState, formType: "signedIn"}))
                         // at this time the user is logged in if no MFA required
                     }).catch(error => {
-                        console.log("made it here");
                         setShowErrorMsg(true);
                         setErrorMsg("An error has occured: " + error.message);
                     });
@@ -155,6 +169,7 @@ function LoginPage() {
         
     }
 
+    //Login component rendering for main authentication page and temporary sign in page
     return (
         <div className="App"> {
             formType === "signIn" && (

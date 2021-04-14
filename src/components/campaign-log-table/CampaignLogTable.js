@@ -1,6 +1,6 @@
 import React from "react";
 import axios from 'axios';
-import Table from "./Table";
+import Table from "../Table";
 import { Link } from "react-router-dom";
 import {Redirect} from "react-router";
 
@@ -12,7 +12,6 @@ class CampaignLogTable extends React.Component {
                                "No. of People Emailed", 
                                "No. of Emails Successfully Delivered", 
                                "No. of Opened Emails",
-                               "No. of Links Opened",
                                "Email Log"];
         this.sortableColumns = ["CampaignId",  "Date of Campaign Launch"];
         this.state = {
@@ -21,13 +20,12 @@ class CampaignLogTable extends React.Component {
             columns: [],
             authenticated: this.props.user
         }
-        console.log(this.state);
     }
 
+    //Retrieve Campaign logs from AWS to create a table
     getLogTableData() {
         var apiString = "https://cif088g5cd.execute-api.us-east-1.amazonaws.com/v1/campaign-logs?templateId="
         var templateId = this.state.templateName;
-        console.log(templateId);
         var queryString =  apiString.concat(templateId);
         var config = {
             method: 'get',
@@ -42,12 +40,10 @@ class CampaignLogTable extends React.Component {
             .then(response => {
                 this.sortCampaignLogs(response.data)
                 let table = this.dataToTable(response.data.body);
-                console.log(table);
                 this.setState({table: table})
-                console.log(this.state);
             })
             .catch(function (error) {
-                console.log(error);
+                console.log("Error getting Log Table Data:",error);
             });
     }
 
@@ -55,6 +51,7 @@ class CampaignLogTable extends React.Component {
         this.getLogTableData()
     }
 
+    //Render the campaign log grid page 
     render() {
         let table = this.state.table;
         if (table) {
@@ -101,6 +98,7 @@ class CampaignLogTable extends React.Component {
             
     }
 
+    //Convert response data from /campaign-logs api to a table
     dataToTable(data) {
         let columnTitles = [
             {displayName:"CampaignId", apiName: "CampaignId"},
@@ -108,17 +106,15 @@ class CampaignLogTable extends React.Component {
             {displayName:"No. of People Emailed", apiName: "NumEmailed"}, 
             {displayName:"No. of Emails Successfully Delivered", apiName: "NumSuccessfullyDelivered"},
             {displayName:"No. of Opened Emails", apiName: "NumOpened"},
-            //{displayName:"No. with a Clicked Link", apiName: "NumLinks"},
             {displayName:"Email Log", apiName: ""}
         ];
 
         let table = {columns: []};
         for (let i = 0; i < columnTitles.length; i++) {
-            console.log(columnTitles.length);
             let columnTitle = columnTitles[i];
             table.columns.push({
                 title: columnTitle.displayName,
-                content: this.getContent(columnTitle, data)
+                content: this.setCellContent(columnTitle, data)
             });
         }
         let templateKeyColumn = this.getColumnWithDisplayName("CampaignId", table);
@@ -126,7 +122,13 @@ class CampaignLogTable extends React.Component {
         return table;
     }
 
-    getContent(columnTitle, data) {
+    /**
+ 	* Set the content of a cell
+ 	* @param {columnTitle} - string
+    * @param {data} - string
+ 	}}
+ 	*/
+    setCellContent(columnTitle, data) {
         let content = [];
         for (let row of data) {
            let apiName = columnTitle.apiName;
@@ -159,20 +161,12 @@ class CampaignLogTable extends React.Component {
                     break;
                 }
                 case "Email Log": {
-                    // console.log("this.state.templateName is:", this.state.templateName)
-                    // console.log("row['CampaignId'] is:", row['CampaignId'])
-                    console.log(this.state.templateName);
                     content.push({
                         button: {
                             displayName: "View",
                             link: `/EmailLogTable/`,
                             data: {templateName: this.state.templateName, campaignId: row['CampaignId']},
                             }});
-                    break;
-                }
-
-                case "No. with a Clicked Link" : {
-                    content.push(row[columnTitle.apiName].toString());
                     break;
                 }
                 
@@ -185,6 +179,12 @@ class CampaignLogTable extends React.Component {
         return content;
     }
 
+    /**
+ 	* Get the column data using the display name of the table
+ 	* @param {displayName} - string
+    * @param {table} - Array[Object]
+ 	}}
+ 	*/
     getColumnWithDisplayName(displayName, table) {
         for (let column of table.columns) {
             if (column.title === displayName) {
@@ -193,6 +193,11 @@ class CampaignLogTable extends React.Component {
         }
     }
 
+    /**
+ 	* Sort the campaign log data by data
+ 	* @param {campaignLogs} - Array[Object]
+ 	}}
+ 	*/
     sortCampaignLogs(campaignLogs) {
         campaignLogs.body.sort((a, b) => {
             let dateA = new Date(a.SentDateTime);
