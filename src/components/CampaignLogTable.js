@@ -75,7 +75,7 @@ class CampaignLogTable extends React.Component {
                             Log out
                         </Link>
 				</div>
-                <div className="scroll container-fluid">
+                <div className="scroll container-fluid" style={{"max-width": "100%"}}>
                     <div className="float-left col-lg-3 ">
                         <Link 
                             className="btn btn-primary d-block mt-5 ml-5 mr-5 mb-5"
@@ -108,7 +108,7 @@ class CampaignLogTable extends React.Component {
             {displayName:"No. of People Emailed", apiName: "NumEmailed"}, 
             {displayName:"No. of Emails Successfully Delivered", apiName: "NumSuccessfullyDelivered"},
             {displayName:"No. of Opened Emails", apiName: "NumOpened"},
-            {displayName:"No. of Links Clicked", apiName: "NumLinks"},
+            //{displayName:"No. with a Clicked Link", apiName: "NumLinks"},
             {displayName:"Email Log", apiName: ""}
         ];
 
@@ -171,7 +171,7 @@ class CampaignLogTable extends React.Component {
                     break;
                 }
 
-                case "No. of Links Clicked" : {
+                case "No. with a Clicked Link" : {
                     content.push(row[columnTitle.apiName].toString());
                     break;
                 }

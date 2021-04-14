@@ -116,7 +116,7 @@ class EmailLogTable extends React.Component {
             {displayName:"Email Address", apiName: "EmailAddress"}, 
             {displayName:"Delivery Status", apiName: "DeliveryStatus"}, 
             {displayName:"Open Status", apiName: "OpenedStatus"}, 
-            {displayName:"Has A Link Been Clicked?", apiName: "ClickedLinkStatus"},
+            //{displayName:"Has A Link Been Clicked?", apiName: "ClickedLinkStatus"},
         ];
         let table = {columns: []};
         if (data.statusCode === 200) {
