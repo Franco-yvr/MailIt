@@ -82,7 +82,7 @@ const createBatchEmailCampaign = async(fileInput, subjectLine, templateName, dyn
     // setting up s3 upload parameters
     try {
      var header = { headers: {
-        "x-api-key": process.env.REACT_APP_AWS_TEMPLATE_API_KEY
+        "x-api-key": "1X49emniv45661qhcv1VD8G5kDuliOkl1kjuJsH3"
      }};
 
     var body = {
@@ -93,7 +93,7 @@ const createBatchEmailCampaign = async(fileInput, subjectLine, templateName, dyn
     };
 
     //Create and send API request to /template endpoint
-    const res = await axios.put(`https://962k5qfgt3.execute-api.us-east-1.amazonaws.com/Prod/batchemailcampaign`, 
+    const res = await axios.post(`https://962k5qfgt3.execute-api.us-east-1.amazonaws.com/ProdBatch/batchemailcampaign`, 
                                     body, header);
     if(res.data.statusCode !== 200) {
         console.log("Create Batch Email Error",res);
