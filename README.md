@@ -8,8 +8,6 @@ Upload template process: the following edge cases have been implemented:
 
 -Files used for creating templates must have unique names
 
-
-
 Batch email campaign: This process has been made more robust by handling the following negative paths/edge cases
 
 -The csv file must contain the correct number of columns to equal the number of dynamic values plus 1 (for the Email Address column)
