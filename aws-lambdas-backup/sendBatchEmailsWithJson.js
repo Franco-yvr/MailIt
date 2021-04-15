@@ -1,10 +1,7 @@
 var aws = require('aws-sdk');
 var ses = new aws.SES({region: 'us-east-1'});
 var s3 = new aws.S3({httpOptions: {timeout: 30000}});
-const fs = require('fs');
-const csv = require('csv-parser');
 const parser = require('papaparse');
-const { Readable } = require('stream');
 const CSV_FILE_BASE64_ENCODING_HEADER = /^data:text\/csv;base64,/
     
 exports.handler = async (event, context, callback) => {
@@ -13,6 +10,26 @@ exports.handler = async (event, context, callback) => {
     var tempalteId = event.templateId; 
     var subjectLine = event.subjectLine;
     var dynamicValues = event.dynamicValues;
+    if(tempalteId == null || tempalteId === "") {
+        let response = {
+            "statusCode": 400,
+            "isBase64Encoded": false,
+            "body": JSON.stringify(`The templateId cannot be empty`)
+        }
+        callback(null, response);
+        return;
+    }
+    
+    if(subjectLine == null || subjectLine === "") {
+        let response = {
+            "statusCode": 400,
+            "isBase64Encoded": false,
+            "body": JSON.stringify(`The subject line cannot be empty.`)
+        }
+        callback(null, response);
+        return;
+    }
+    
     let jsonDataResult = {};
     let destinations = null;
     console.log(parsedData);
@@ -230,10 +247,11 @@ function getDynamicValueStrings(entry, subjectLine) {
     for (let [key, value] of Object.entries(entry)) {
         if (key != "Email Address") {
             newEntry[key] = value;
+        } else {
+            newEntry['UNSUBSCRIBE_LINK'] = "https://962k5qfgt3.execute-api.us-east-1.amazonaws.com/Prod/unsubscribe-from-ses?email=" + newEntry[key];
         }
     }
     newEntry['SUBJECT_LINE'] = subjectLine;
-    newEntry['UNSUBSCRIBE_LINK'] = "https://962k5qfgt3.execute-api.us-east-1.amazonaws.com/Prod/unsubscribe-from-ses?email=" + newEntry['Email Address'];
     console.log(newEntry);
     return JSON.stringify(newEntry);
 }
@@ -255,7 +273,7 @@ const parseEntriesForErrors = (parsedData, dynamicValues) => {
     
     for(var i = 0; i<rowCount; i++ ) {
         let row = data[i];
-        
+        //For those using excel to create csv, it adds unneccessary blank entries in the last rows if there are less than 6 entries
         if(rowCount < 6) {
             let isThereAEmptyRow = isEmptyRow(row, possibleColumnNames);
             //If there are less than 4 entries in a csv file empty rows can be added to make the rowCount = 3 
@@ -353,8 +371,6 @@ function maskEmailAddress(emailAddress) {
     let redact = "XXXXXXXXXX";
     return emailAddress.charAt(0) + redact;
 }
-
-
 
 
 
