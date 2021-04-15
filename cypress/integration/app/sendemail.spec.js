@@ -130,12 +130,12 @@ context("Assertions", () => {
       //open campaign logs
       cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'View').click();
       cy.contains("Campaign logs: donotremove");
-      cy.wait(5000);
+      cy.wait(50000);
 
       //confirm emails are updated
       cy.get('table').contains('td', "1").siblings().contains('a', 'View').click();
       cy.contains("Email logs");
-      cy.wait(5000);
+      cy.wait(70000);
 
       cy.get('table').contains('td', "gXXXXXXXXXX");
       cy.get('table').contains('td', "MXXXXXXXXXX");
@@ -164,7 +164,7 @@ context("Assertions", () => {
       cy.get('#email-address')
         .should('be.visible')
         .type('gurveer.kaur.aulakh@gmail.com');
-      cy.wait(5000);
+      cy.wait(50000);
 
 
       cy.get('input[aria-label="name"]')

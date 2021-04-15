@@ -74,6 +74,8 @@
     "wait-on": "^5.2.1"
   },
   "nyc": {
-    "reporter": ["html"]
-}
+    "reporter": [
+      "html"
+    ]
+  }
 }
