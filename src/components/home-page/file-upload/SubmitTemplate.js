@@ -10,7 +10,7 @@ class SubmitTemplate extends React.Component {
             checking: false, setVisible: true
         }
         this.messages = Object.freeze({
-            WRONG_FILE_TYPE: "Wrong template file type. Please upload a .docx file",
+            WRONG_FILE_TYPE: "Wrong template file type. Please upload a .docx file.",
             UPLOAD_FAIL: "Upload Failure",
             EMPTY_FIELD: "At least one field is empty. Please fill in both fields to continue.",
             TEMPLATE_NAME_INCORRECT_FORMAT: "The template name can only contain alpha numeric characters, underscores and/or hyphens",
