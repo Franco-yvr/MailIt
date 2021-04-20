@@ -1,3 +1,12 @@
+Team Mail It! WIP Code Drop - April 14th, 2021 
+1. The batch email campaign service was updated with a new csv parser to allow for adaptive csv parsing for different csv formats (i.e. for Windows, Mac and Linux) csv formatting 
+2. The UI has had many fixes to address previous feedback from course staff. 
+3.When a column  is sorted the column name is highlighted 
+4. An error is no longer thrown when a file is uploaded with the same name as a previously uploaded template 
+5. The front end has been refactored for improved readability. More commenting has been added and the files have been reorganized in a more logical manner. 
+6. The batch email api endpoint /batchemailcampaign is now set up with the POST method instead of the PUT 
+7. More single email tests have been added 
+
 Team Mail It! WIP Code Drop - April 9th, 2021 
 
 Upload template process: the following edge cases have been implemented: 
