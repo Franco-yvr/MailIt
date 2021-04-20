@@ -3,6 +3,7 @@ import axios from 'axios';
 import Table from "../Table";
 import { Link } from "react-router-dom";
 import {Redirect} from "react-router";
+import {Auth} from 'aws-amplify';
 
 
 class EmailLogTable extends React.Component {
@@ -22,7 +23,7 @@ class EmailLogTable extends React.Component {
             templateName: this.props.location.state.templateName,
             campaignId: this.props.location.state.campaignId,
             columns: [],
-            authenticated: this.props.user
+            authenticated: false
         }
     }
 
@@ -49,9 +50,18 @@ class EmailLogTable extends React.Component {
             });
     }
 
-    componentDidMount() {
-        this.getEmailTableData()
+    async componentDidMount() {
+        await Auth.currentAuthenticatedUser().then(() => {
+			this.setState({authenticated: true});
+            this.getEmailTableData();
+		}).catch(() => {
+			this.setState({authenticated: false});
+		});
     }
+
+    onLogOut = async() => {
+		await Auth.signOut();
+	}
 
     //Render the email log grid page
     render() {
@@ -59,20 +69,20 @@ class EmailLogTable extends React.Component {
         if (table) {
            this.state.columns = table.columns.map(({title}) => title);
         }
-        if (this.state.authenticated !== true) {
-            return <Redirect to="/"/>
-        } else {
-            return (
+        return (this.state.authenticated !== true? 
+				<div>Access Denied</div>
+				:
                 <div>
                 <div className="d-flex justify-content-end">
-                        <Link
-                            role="button"
-                            id="logOutButton"
-                            to={"/"}
-                            className="btn btn-primary mr-1 mt-1"
-                            >
-                            Log out
-                        </Link>
+                    <Link
+						to={"/"}
+						>
+						<button className="btn btn-primary mr-1 mt-1" 
+							id='logOutButton' 
+							onClick={this.onLogOut}> 
+							Log Out 
+						</button>
+					</Link>
 				</div>
                 <div className="scroll container-fluid" style={{"max-width": "100%"}}>
                     <div className="float-left col-lg-3 ">
@@ -100,8 +110,7 @@ class EmailLogTable extends React.Component {
                     </div>
                 </div>  
                 </div>   
-            );
-        }
+            );    
     }
 
     //This generates the prop for telling the table which columns should be sortable

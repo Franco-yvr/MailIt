@@ -5,6 +5,7 @@ import sendSingleEmail from '../../api-service.js'
 import BatchEmailCampaignCreation from "./BatchEmailCampaignCreation";
 import { Link } from "react-router-dom";
 import {Redirect} from "react-router";
+import {Auth} from 'aws-amplify';
 var AWS = require('aws-sdk');
 var mammoth = require("mammoth");
 
@@ -39,7 +40,7 @@ class CampaignPage extends React.Component {
             message: null,
             loading: false,
             subjectLine: "",
-            authenticated: this.props.user
+            authenticated: false
         }
         
         this.handleEmailChange = this.handleEmailChange.bind(this);
@@ -48,11 +49,14 @@ class CampaignPage extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
+    onLogOut = async() => {
+		await Auth.signOut();
+	}
+
     render() {
-        if (this.state.authenticated !== true) {
-            return <Redirect to="/" />
-        } else {
-            return (
+       return (this.state.authenticated !== true? 
+				<div>Access Denied</div>
+				:
                 <div className="container-fluid my-container">
                     <div className="row my-rows" style={{ textAlign: 'center' }}>
                         <div className="col-6 my-col">{`Preview Template: ${this.state.templateName}`}</div>
@@ -147,21 +151,25 @@ class CampaignPage extends React.Component {
                         </div>
                     </div>
                 </div>
-            );
-        }
+            );     
     }
 
     async componentDidMount() {
-        var s3 = new AWS.S3();
-        s3.getObject({ Bucket: BUCKET_NAME, Key: this.state.templateKey }, (err, data) => {
-            if (err) {
-                console.log("Could not get Object from S3 Bucket Error",err);
-                throw err
-            }
-            mammoth.convertToHtml({ arrayBuffer: data.Body }).then((v, m) => {
-                this.setState({ docHtml: v.value });
+        await Auth.currentAuthenticatedUser().then(() => {
+            this.setState({authenticated: true});
+            var s3 = new AWS.S3();
+            s3.getObject({ Bucket: BUCKET_NAME, Key: this.state.templateKey }, (err, data) => {
+                if (err) {
+                    console.log("Could not get Object from S3 Bucket Error",err);
+                    throw err
+                }
+                mammoth.convertToHtml({ arrayBuffer: data.Body }).then((v, m) => {
+                    this.setState({ docHtml: v.value });
+                });
             });
-        });
+        }).catch((error) => {
+			this.setState({authenticated: false});
+		});
     }
 
     //Create the HTML text inputs for each dynamic value

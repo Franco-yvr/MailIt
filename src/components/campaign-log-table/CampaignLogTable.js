@@ -3,6 +3,7 @@ import axios from 'axios';
 import Table from "../Table";
 import { Link } from "react-router-dom";
 import {Redirect} from "react-router";
+import {Auth} from 'aws-amplify';
 import {compareTableFormattedDate} from "../util.js";
 
 class CampaignLogTable extends React.Component {
@@ -20,7 +21,7 @@ class CampaignLogTable extends React.Component {
             templateName: this.props.location.state.templateName,
             table: null,
             columns: [],
-            authenticated: this.props.user
+            authenticated: false
         }
     }
 
@@ -50,9 +51,18 @@ class CampaignLogTable extends React.Component {
             });
     }
 
-    componentDidMount() {
-        this.getLogTableData()
+    async componentDidMount() {
+        await Auth.currentAuthenticatedUser().then(() => {
+			this.setState({authenticated: true});
+            this.getLogTableData();
+		}).catch(() => {
+			this.setState({authenticated: false});
+		});
     }
+
+    onLogOut = async() => {
+		await Auth.signOut();
+	}
 
     //Render the campaign log grid page 
     render() {
@@ -60,20 +70,20 @@ class CampaignLogTable extends React.Component {
         if (table) {
             this.state.columns = table.columns.map(({title}) => title);
         }
-        if (this.state.authenticated !== true) {
-            return <Redirect to="/" />
-        } else {
-            return (
+        return (this.state.authenticated !== true? 
+				<div>Access Denied</div>
+				:
                 <div>
                 <div className="d-flex justify-content-end">
-                        <Link
-                            role="button"
-                            id="logOutButton"
-                            to={"/"}
-                            className="btn btn-primary mr-1 mt-1"
-                            >
-                            Log out
-                        </Link>
+                    <Link
+						to={"/"}
+						>
+						<button className="btn btn-primary mr-1 mt-1" 
+							id='logOutButton' 
+							onClick={this.onLogOut}> 
+							Log Out 
+						</button>
+					</Link>
 				</div>
                 <div className="scroll container-fluid" style={{"max-width": "100%"}}>
                     <div className="float-left col-lg-3 ">
@@ -95,8 +105,7 @@ class CampaignLogTable extends React.Component {
                     </div>
                 </div> 
                 </div>       
-            );
-        }
+            );    
         
             
     }
