@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import $ from 'jquery';
-import { object } from "prop-types";
 
 /**  
  * 
@@ -22,16 +21,15 @@ import { object } from "prop-types";
  * 
  * - button links to the route given by link
  * 
- * @param {Array} columns
+ * @param {Array} columnsToSort
  * 
  * - specifies which columns should be shown in table if columns is not specified all columns are shown
  * 
- * - columns is an array of {title: <string> ,sort: <boolean> compare: <function> }
+ * - columnsToSort is an array of {title: <string>, compare: <function> }
  * 
  * - title is the title of a column we want included in the table
- * - sort is an optional field that indicates whether we should be able to sort column, columns with sort
- * set to true have a sorting button beside them in table.
- * - You can pass a custom comparator optionally with the compare parameter if you want custom sorting
+ * - You can pass a custom comparator optionally with the compare parameter if you want custom sorting 
+ * for the column with the specified title
  * 
  * - Default sorting order is alphabetical order of strings
  * 
@@ -161,18 +159,16 @@ class Table extends React.Component {
         return (
             <tr>
                 {this.state.data.columns.map((column, i) => {
-                    if (this.renderColumn(column.title)) {
-                        return (
-                            <th key={i} className={this.isSortColumn(column.title)? "bg-secondary text-white" : ""}>
-                                {column.title}
-                                {this.addSortButtonToColumn(column.title) ?
-                                    <button className="btn-group-vertical float-right" onClick={() => this.handleSorting(column.title)}>
-                                        <span>&#9650;</span>
-                                    </button> :
-                                    <span></span>}
-                            </th>
-                        );
-                    }
+                    return (
+                        <th key={i} className={this.isSortColumn(column.title)? "bg-secondary text-white" : ""}>
+                            {column.title}
+                            {this.addSortButtonToColumn(column.title) ?
+                                <button className="btn-group-vertical float-right" onClick={() => this.handleSorting(column.title)}>
+                                    <span>&#9650;</span>
+                                </button> :
+                                <span></span>}
+                        </th>
+                    );
                 })}
             </tr>
         )
@@ -193,13 +189,11 @@ class Table extends React.Component {
     renderRow(i) {
         return (
             this.state.data.columns.map((current, j) => {
-                if (this.renderColumn(current.title)) {
-                    return (
-                        <td key={j} className="text-left">
-                            {this.renderCell(current.content[i])}
-                        </td>
-                    )
-                }
+                return (
+                    <td key={j} className="text-left">
+                        {this.renderCell(current.content[i])}
+                    </td>
+                )
             })
         )
     }
@@ -232,25 +226,15 @@ class Table extends React.Component {
         }
     }
 
-    renderColumn(columnName) {
-        let columnsToShow = this.props.columns;
-        return !columnsToShow || columnsToShow.map(({ title }) => title).includes(columnName);
-    }
-
-    addSortButtonToColumn(columnName) {
-        let columnsToShow = this.props.columns;
-        for (let { title, sort } of columnsToShow) {
-            if (columnName == title && sort) {
-                return true;
-            }
-        }
-        return false;
+    addSortButtonToColumn(columnTitle) {
+        let columnsToSort = this.props.columnsToSort;
+        return columnsToSort.map(({title}) => title).includes(columnTitle);
     }
 
     getColumnCompareFunction(columnTitle) {
-        let columnsToShow = this.props.columns;
-        for (let {title, sort, compare} of columnsToShow) {
-            if (title === columnTitle && sort && compare) {
+        let columnsToSort = this.props.columnsToSort;
+        for (let {title, compare} of columnsToSort) {
+            if (title === columnTitle && compare) {
                 return compare;
             }
         }

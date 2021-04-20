@@ -2,6 +2,7 @@ import React from "react";
 import axios from 'axios';
 
 import Table from "../Table"
+import {compareTableFormattedDate} from "../util.js"
 
 const MAX_FILENAME_STRING_CHARACTERS_SHOWN = 20;
 const MAX_TEMPLATE_NAME_STRING_CHARACTERS_SHOWN = 20;
@@ -12,7 +13,7 @@ class TemplateLogTable extends React.Component {
         super(props);
         this.defaultColumns = ["File Name", "Template Name", "Upload Date", "Dynamic Values", "Create Email Campaign", "Campaign Logs"];
         this.sortableColumns = ["File Name",  "Template Name", "Upload Date"];
-        this.state = {table: null, columns: []};
+        this.state = {table: null, columns: [], loading: false};
         this.getTableData = this.getTableData.bind(this);
     }
 
@@ -28,7 +29,7 @@ class TemplateLogTable extends React.Component {
 
     //Retrieve Template logs from tTemplateLog DynamoDb to create a table
     getTableData() {
-          
+       this.setState({loading: true});
        var config = {
             method: 'get',
             url: 'https://cif088g5cd.execute-api.us-east-1.amazonaws.com/v1/template-logs',
@@ -42,11 +43,7 @@ class TemplateLogTable extends React.Component {
           .then(response => {
             this.sortTemplateLogs(response.data);
             let table = this.dataToTable(response.data);
-            this.setState({table: table, columns: table.columns.map(({title}) => {
-                if(this.defaultColumns.includes(title)) {
-                    return title;
-                }
-            })})
+            this.setState({table: table, columnsToSort: this.getColumnsToSort(), loading: false})
           })
           .catch(function (error) {
             console.log("Get Table Data Error",error);
@@ -55,32 +52,27 @@ class TemplateLogTable extends React.Component {
 
     render() {
         let table = this.state.table;
-        let columnsProp = this.getColumnsPropToTable();
+        let columnsToSort = this.getColumnsToSort();
         return ( 
             <div className="col-lg-9">
                 <h1 className="mt-2">Template logs</h1>
-                {table? <Table data={table} 
-                columns={columnsProp}
-                className="ml-1"/> : 
-                <Table loading={true}/>}
+                {this.state.loading? <Table loading={true}/> : 
+                <Table data={table} 
+                columnsToSort={columnsToSort}
+                className="ml-1"/>
+                }
             </div>        
         );
     }
 
     //This generates the prop for telling the table which columns should be sortable
-    getColumnsPropToTable() {
-        return this.state.columns.map((column) => {
-            let columnToSort = {title: column, sort: this.sortableColumns.includes(column)}
+    getColumnsToSort() {
+        return this.sortableColumns.map((column) => {
+            let columnsToSort = {title: column, sort: this.sortableColumns.includes(column)}
             if (column === "Upload Date") {
-                columnToSort["compare"] = function (dateA, dateB) {
-                    let DMY_A = dateA.split("/");
-                    let DMY_B = dateB.split("/");
-                    let dateObjA = new Date(DMY_A[2], DMY_A[1], DMY_A[0]);
-                    let dateObjB = new Date(DMY_B[2], DMY_B[1], DMY_B[0]); 
-                    return dateObjA - dateObjB;                     
-                }
+                columnsToSort["compare"] = compareTableFormattedDate;
             }
-            return columnToSort;
+            return columnsToSort;
         })
     }
 
