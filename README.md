@@ -1,3 +1,7 @@
+Team Mail It! WIP Code Drop - April 19th, 2021
+1. Additional sorting has been added to all grids including numerical fields 
+
+
 Team Mail It! WIP Code Drop - April 14th, 2021 
 1. The batch email campaign service was updated with a new csv parser to allow for adaptive csv parsing for different csv formats (i.e. for Windows, Mac and Linux) csv formatting 
 2. The UI has had many fixes to address previous feedback from course staff. 
