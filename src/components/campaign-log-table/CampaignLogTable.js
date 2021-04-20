@@ -13,9 +13,11 @@ class CampaignLogTable extends React.Component {
                                "No. of People Emailed", 
                                "No. of Emails Successfully Delivered", 
                                "No. of Opened Emails",
+                               "No. of Emails With At Least One Embedded Link Clicked",
                                "Email Log"];
         this.sortableColumns = ["CampaignId",  "Date of Campaign Launch", "No. of People Emailed",
-        "No. of Emails Successfully Delivered", "No. of Opened Emails"];
+        "No. of Emails Successfully Delivered", "No. of Opened Emails",
+        ];
         this.state = {
             templateName: this.props.location.state.templateName,
             table: null,
@@ -109,7 +111,8 @@ class CampaignLogTable extends React.Component {
                 columnsToSort["compare"] = compareTableFormattedDate;
             } else if (column === "No. of People Emailed" || 
                        column === "No. of Emails Successfully Delivered" || 
-                       column === "No. of Opened Emails") {
+                       column === "No. of Opened Emails" || 
+                       column === "No. of Emails With At Least One Embedded Link Clicked") {
                        columnsToSort["compare"] = function (strA, strB) {
                             return parseInt(strA) - parseInt(strB);
                        }
@@ -128,6 +131,7 @@ class CampaignLogTable extends React.Component {
             {displayName:"No. of People Emailed", apiName: "NumEmailed"}, 
             {displayName:"No. of Emails Successfully Delivered", apiName: "NumSuccessfullyDelivered"},
             {displayName:"No. of Opened Emails", apiName: "NumOpened"},
+            {displayName:"No. of Emails With At Least One Embedded Link Clicked", apiName: "NumLinks"},
             {displayName:"Email Log", apiName: ""}
         ];
 
@@ -191,7 +195,10 @@ class CampaignLogTable extends React.Component {
                             }});
                     break;
                 }
-                
+                case "No. of Emails With At Least One Embedded Link Clicked": {
+                    content.push(row[columnTitle.apiName].toString());
+                    break;
+                }
                 default:
                     if (apiName) {
                         content.push(row[columnTitle.apiName]);

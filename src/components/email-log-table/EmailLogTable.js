@@ -17,7 +17,8 @@ class EmailLogTable extends React.Component {
                                "Sent Date", 
                                "Email Address", 
                                "Delivery Status", 
-                               "Open Status"];
+                               "Open Status",
+                               "Has at Least One Embedded Link Been Clicked?"];
         this.state = {
             templateName: this.props.location.state.templateName,
             campaignId: this.props.location.state.campaignId,
@@ -124,7 +125,8 @@ class EmailLogTable extends React.Component {
             {displayName:"Sent Date", apiName: "SentDateTime"}, 
             {displayName:"Email Address", apiName: "EmailAddress"}, 
             {displayName:"Delivery Status", apiName: "DeliveryStatus"}, 
-            {displayName:"Open Status", apiName: "OpenedStatus"}, 
+            {displayName:"Open Status", apiName: "OpenedStatus"},
+            {displayName:"Has at Least One Embedded Link Been Clicked?", apiName: "ClickedLinkStatus"}
         ];
         let table = {columns: []};
         if (data.statusCode === 200) {
@@ -158,8 +160,18 @@ class EmailLogTable extends React.Component {
                     break;
                 }
                 case "Sent Date": {
-                    let value = row['SentDateTime'];
-                    content.push(value);
+                    let value = row[columnTitle.apiName];
+                    if (value) {
+                        let dateObj = new Date(value);
+                        var date = dateObj.getDate();
+                        var month = dateObj.getMonth() + 1; // Since getMonth() returns month from 0-11 not 1-12
+                        var year = dateObj.getFullYear();
+                            
+                        var dateString = date + "/" + month + "/" + year;
+                        content.push(dateString);
+                    } else {
+                        content.push(" ");
+                    }
                     break;
                 }
                 case "Email Address": {
@@ -177,11 +189,11 @@ class EmailLogTable extends React.Component {
                     content.push(value);
                     break;
                 }
-                // case "Has A Link Been Clicked?": {
-                //     let value = row['ClickedLinkStatus'].toString();
-                //     content.push(value);
-                //     break;
-                // }
+                case "Has at Least One Embedded Link Been Clicked?": {
+                    let value = row['ClickedLinkStatus'].toString();
+                    content.push(value);
+                    break;
+                }
                 default:
                     break;
                 }
