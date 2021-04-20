@@ -135,13 +135,15 @@ context("Assertions", () => {
       //confirm emails are updated
       cy.get('table').contains('td', "1").siblings().contains('a', 'View').click();
       cy.contains("Email logs");
-      cy.wait(70000);
+      cy.wait(10000);
 
       cy.get('table').contains('td', "gXXXXXXXXXX");
+      cy.wait(5000);
       cy.get('table').contains('td', "MXXXXXXXXXX");
+      cy.wait(5000);
     });
 
-    it('login success and send email fail test', () => {
+    it('login success and send email fail test with subject line missing', () => {
 
       // login
       cy.get('#email')
@@ -164,9 +166,7 @@ context("Assertions", () => {
       cy.get('#email-address')
         .should('be.visible')
         .type('gurveer.kaur.aulakh@gmail.com');
-      cy.wait(50000);
-
-
+      cy.wait(5000);
       cy.get('input[aria-label="name"]')
         .should('be.visible')
         .type('abc');
@@ -184,7 +184,177 @@ context("Assertions", () => {
         .should('be.visible');
 
     });
+    it('login success and missing email fail test', () => {
 
+      // login
+      cy.get('#email')
+        .should('be.visible')
+        .type('mountainSasquatch00@gmail.com');
+      cy.get('#password')
+        .should('be.visible')
+        .type('teamMailIt!');
+      cy.get('button[type="submit"]')
+        .should('be.visible')
+        .click();
+
+      cy.wait(10000);
+
+      // click ready
+      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.wait(5000);
+
+      //single email test
+      cy.get('#subject-line')
+      .should('be.visible')
+      .type('EmailSubject');
+      cy.get('input[aria-label="name"]')
+        .should('be.visible')
+        .type('abc');
+      cy.get('input[aria-label="AMOUNT"]')
+        .should('be.visible')
+        .type('2000');
+      cy.get('input[aria-label="PROMO_CODE"]')
+        .should('be.visible')
+        .type('def');
+      cy.get('button[id="button1"]')
+        .should('be.visible')
+        .click();
+      cy.wait(5000);
+      cy.get('#emailSentFailed')
+        .should('be.visible');
+
+    });
+    it('login success and white space added with email fail test', () => {
+
+      // login
+      cy.get('#email')
+        .should('be.visible')
+        .type('mountainSasquatch00@gmail.com');
+      cy.get('#password')
+        .should('be.visible')
+        .type('teamMailIt!');
+      cy.get('button[type="submit"]')
+        .should('be.visible')
+        .click();
+
+      cy.wait(10000);
+
+      // click ready
+      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.wait(5000);
+
+      //single email test
+      cy.get('#email-address')
+        .should('be.visible')
+        .type(' gurveer.kaur.aulakh@gmail.com');
+      cy.wait(5000);
+      cy.get('#subject-line')
+      .should('be.visible')
+      .type('EmailSubject');
+      cy.get('input[aria-label="name"]')
+        .should('be.visible')
+        .type('abc');
+      cy.get('input[aria-label="AMOUNT"]')
+        .should('be.visible')
+        .type('2000');
+      cy.get('input[aria-label="PROMO_CODE"]')
+        .should('be.visible')
+        .type('def');
+      cy.get('button[id="button1"]')
+        .should('be.visible')
+        .click();
+      cy.wait(5000);
+      cy.get('#emailSentFailed')
+        .should('be.visible');
+
+    });
+    it('login success and incorrectly formatted email fail test', () => {
+
+      // login
+      cy.get('#email')
+        .should('be.visible')
+        .type('mountainSasquatch00@gmail.com');
+      cy.get('#password')
+        .should('be.visible')
+        .type('teamMailIt!');
+      cy.get('button[type="submit"]')
+        .should('be.visible')
+        .click();
+
+      cy.wait(10000);
+
+      // click ready
+      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.wait(5000);
+
+      //single email test
+      cy.get('#email-address')
+        .should('be.visible')
+        .type('gurveer.kaur.aulakh');
+      cy.wait(5000);
+      cy.get('#subject-line')
+      .should('be.visible')
+      .type('EmailSubject');
+      cy.get('input[aria-label="name"]')
+        .should('be.visible')
+        .type('abc');
+      cy.get('input[aria-label="AMOUNT"]')
+        .should('be.visible')
+        .type('2000');
+      cy.get('input[aria-label="PROMO_CODE"]')
+        .should('be.visible')
+        .type('def');
+      cy.get('button[id="button1"]')
+        .should('be.visible')
+        .click();
+      cy.wait(5000);
+      cy.get('#emailSentFailed')
+        .should('be.visible');
+    });
+    it('login success and not verified email fail test', () => {
+
+      // login
+      cy.get('#email')
+        .should('be.visible')
+        .type('mountainSasquatch00@gmail.com');
+      cy.get('#password')
+        .should('be.visible')
+        .type('teamMailIt!');
+      cy.get('button[type="submit"]')
+        .should('be.visible')
+        .click();
+
+      cy.wait(10000);
+
+      // click ready
+      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.wait(5000);
+
+      //single email test
+      cy.get('#email-address')
+        .should('be.visible')
+        .type('mountainSasquatch00@gmail.com');
+      cy.wait(5000);
+      cy.get('#subject-line')
+      .should('be.visible')
+      .type('EmailSubject');
+      cy.get('input[aria-label="name"]')
+        .should('be.visible')
+        .type('abc');
+      cy.get('input[aria-label="AMOUNT"]')
+        .should('be.visible')
+        .type('2000');
+      cy.get('input[aria-label="PROMO_CODE"]')
+        .should('be.visible')
+        .type('def');
+      cy.get('button[id="button1"]')
+        .should('be.visible')
+        .click();
+      cy.wait(5000);
+      cy.get('#emailSentFailed')
+        .should('be.visible');
+
+    });
   });
 
 });
