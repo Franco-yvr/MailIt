@@ -46,7 +46,7 @@ class HomePage extends React.Component {
 						to={"/"}
 						>
 						<button className="btn btn-primary mr-1 mt-1" 
-							id='logOutButton' 
+							id="logOutButton"
 							onClick={this.onLogOut}> 
 							Log Out 
 						</button>
