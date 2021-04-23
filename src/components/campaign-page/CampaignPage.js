@@ -5,6 +5,8 @@ import sendSingleEmail from '../../api-service.js'
 import BatchEmailCampaignCreation from "./BatchEmailCampaignCreation";
 import { Link } from "react-router-dom";
 import {Redirect} from "react-router";
+import $ from 'jquery';
+
 var AWS = require('aws-sdk');
 var mammoth = require("mammoth");
 
@@ -39,13 +41,17 @@ class CampaignPage extends React.Component {
             message: null,
             loading: false,
             subjectLine: "",
-            authenticated: this.props.user
+            authenticated: this.props.user,
+            showModal:false,
+            dynamicValueObject:{}
         }
         
         this.handleEmailChange = this.handleEmailChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubjectLineChange = this.handleSubjectLineChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.showModal = this.showModal.bind(this);
+        this.hasErrors  = this.hasErrors .bind(this)
     }
 
     render() {
@@ -53,6 +59,7 @@ class CampaignPage extends React.Component {
             return <Redirect to="/" />
         } else {
             return (
+                <>
                 <div className="container-fluid my-container">
                     <div className="row my-rows" style={{ textAlign: 'center' }}>
                         <div className="col-6 my-col">{`Preview Template: ${this.state.templateName}`}</div>
@@ -123,8 +130,10 @@ class CampaignPage extends React.Component {
                                     </div> : null }
                             </div>
                             <div className="row justify-content-right my-row1 mb-1 button-spacing">
-                                <button type="button" className="btn btn-success" id='button1' onClick={this.handleSubmit}>Submit</button>
+                            <button type="button" className="btn btn-success" id='button1' onClick={this.handleSubmit}>Submit</button>
+                                <button type="button" class="btn btn-primary ml-1"onClick={(e) => this.showModal() } data-toggle="modal" >Get Request JSON Body</button>
                             </div>
+
                             {this.state.loading ?
                                 <div className="horizontal-center">
                                     <div className="spinner-border text-primary" style={{width: "2rem", height: "2rem"}}
@@ -146,7 +155,34 @@ class CampaignPage extends React.Component {
                             <BatchEmailCampaignCreation dynamicValues={this.state.dynamicValues} templateName={this.state.templateName} />
                         </div>
                     </div>
+                    
                 </div>
+                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Body</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-break">
+          <span>
+      &#123;
+      <br/>
+        {this.showBody()}
+        <br/>
+        &#125;
+        <br></br>
+        </span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+                </>
             );
         }
     }
@@ -215,9 +251,8 @@ class CampaignPage extends React.Component {
         this.setState(dynamicValueObject);
     }
 
-    
- 	//Event handler for when the submit field is clicked
-    handleSubmit() {
+ 
+    hasErrors () {
         let dynamicValueInputs = document.getElementsByClassName('single-email');
         let emailAddressInput = document.getElementById('email-address');
         let subjectLineInput = document.getElementById('subject-line');
@@ -263,47 +298,89 @@ class CampaignPage extends React.Component {
                 input.classList.remove("inputError");
                 dynamicValueObject[dynamicValue] = input.value;
             }
-        }    
-        
-
-        if(!incorrectlyFomattedEmail && !emptyField && !emailContainsWhitespace) {
-                this.setState({message: null});
-                var header = { headers: {
-                    "x-api-key": "6oyO3enoUI9Uu26ZPtdXNA2YPPCbSWn2cFRrxwRh"
-                }};
-
-                var body = {
-                    emailAddress: emailAddress,
-                    dynamicValueStrings: JSON.stringify(dynamicValueObject),
-                    templateId: this.state.templateName
-                };
-                this.setState({loading: true});
-                sendSingleEmail(header, body).then(response => {
-                    this.setState({loading: false});
-                    if(response.status === 200) {
-                        this.setState({ message: this.messages.SUCCESS })
-                    } else {
-                        this.setState({ message: this.messages.SINGLE_EMAIL_ERROR + response.data})
-                    }
-                }).catch(error => {
-                    this.setState({loading: false});
-                    if(error.response.data.includes("Email address is not verified")) {
-                        this.setState({ message: this.messages.EMAIL_NOT_SES_VERIFIED})
-                    } else {
-                        console.log("Single Email Campaign Error: " + error.response);
-                        this.setState({ message: this.messages.SINGLE_EMAIL_ERROR})
-                    }
-                    
-                })
-
-        } else if(emptyField){
+        }
+        this.setState({dynamicValueObject})
+        console.log("dynamicValueObject",dynamicValueObject)
+        if(emptyField){
             this.setState({ message: this.messages.EMPTY_FIELD });
         } else if(incorrectlyFomattedEmail) {
             this.setState({ message: this.messages.INCORRECT_EMAIL_FORMAT });
         } else if(emailContainsWhitespace) {
             this.setState({ message: this.messages.EMAIL_CONTAINS_WHITESPACE});
         }
+        if(!incorrectlyFomattedEmail && !emptyField && !emailContainsWhitespace) 
+            return false
+        return true
+    }
+    showModal() {
+        if(!this.hasErrors()) {
+            $('#exampleModal').modal('show');
+            this.setState({ message: null});
+        }
+    }
+    showBody() {
+        let dynamicValueObject = {};
+        let emailAddress = this.state['emailAddress'];
+        let dynamicValueInputs = document.getElementsByClassName('single-email');
+        let emptyField = false;
+        let subjectLine = this.state['subjectLine'].trimEnd();
+        let subjectLineInput = document.getElementById('subject-line');
 
+
+        var header = { headers: {
+            "x-api-key": "6oyO3enoUI9Uu26ZPtdXNA2YPPCbSWn2cFRrxwRh"
+        }};
+        console.log("stateDynamicValueObkect:",this.state.dynamicValueObject)
+        var body = {
+            emailAddress: emailAddress,
+            dynamicValueStrings: JSON.stringify(this.state.dynamicValueObject),
+            templateId: this.state.templateName
+        };
+        console.log("showbody body",body)
+        let reformattedJSON = JSON.stringify(body)
+
+        return reformattedJSON.substring(1,reformattedJSON.length-1)
+    }
+ 	//Event handler for when the submit field is clicked
+    handleSubmit() {        let dynamicValueObject = {};
+    let emailAddress = this.state['emailAddress'];
+    let dynamicValueInputs = document.getElementsByClassName('single-email');
+    let emptyField = false;
+
+
+    if(this.hasErrors() == false) {
+            this.setState({message: null});
+            let header = { headers: {
+                "x-api-key": "6oyO3enoUI9Uu26ZPtdXNA2YPPCbSWn2cFRrxwRh"
+            }};
+
+            let body = {
+                emailAddress: emailAddress,
+                dynamicValueStrings: JSON.stringify(this.state.dynamicValueObject),
+                templateId: this.state.templateName
+            };
+            console.log("handlesubmit body",body);
+
+            this.setState({loading: true});
+            sendSingleEmail(header, body).then(response => {
+                this.setState({loading: false});
+                if(response.status === 200) {
+                    this.setState({ message: this.messages.SUCCESS })
+                } else {
+                    this.setState({ message: this.messages.SINGLE_EMAIL_ERROR + response.data})
+                }
+            }).catch(error => {
+                this.setState({loading: false});
+                if(error.response.data.includes("Email address is not verified")) {
+                    this.setState({ message: this.messages.EMAIL_NOT_SES_VERIFIED})
+                } else {
+                    console.log("Single Email Campaign Error: " + error.response);
+                    this.setState({ message: this.messages.SINGLE_EMAIL_ERROR})
+                }
+                
+            })
+
+    }
     }
 
     isEmailCorrectlyFormatted(email) {
