@@ -5,6 +5,8 @@ import {Redirect} from "react-router";
 import {Link} from "react-router-dom";
 import FileUpload from "./file-upload/FileUpload";
 import {Auth} from 'aws-amplify';
+import LoginPage from "../login/LoginPage";
+import Button from "@material-ui/core/Button";
 
 class HomePage extends React.Component {
 	constructor(props) {
@@ -35,10 +37,25 @@ class HomePage extends React.Component {
 		await Auth.signOut();
 	}
 
+	redirectToLogin() {
+		window.location = "/"
+	}
+
 	render() {
 			this.id += 1;
-			return (this.state.authenticated !== true? 
-				<div>Access Denied</div>
+			return (this.state.authenticated !== true?
+				// <div>Access Denied</div>
+				<div>
+				<h6 style={{color: 'blue'}}>{"You must be logged in to access this page"}</h6>
+					<Button
+						type="submit"
+						variant="contained"
+						color="primary"
+						onClick={this.redirectToLogin}
+					>
+						Login
+					</Button>
+				</div>
 				:
 				<div>
 				<div className="d-flex justify-content-end">

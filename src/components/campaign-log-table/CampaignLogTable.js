@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import {Redirect} from "react-router";
 import {Auth} from 'aws-amplify';
 import {compareTableFormattedDate} from "../util.js";
+import Button from "@material-ui/core/Button";
 
 class CampaignLogTable extends React.Component {
     constructor(props) {
@@ -64,6 +65,10 @@ class CampaignLogTable extends React.Component {
 		await Auth.signOut();
 	}
 
+    redirectToLogin() {
+        window.location = "/"
+    }
+
     //Render the campaign log grid page 
     render() {
         let table = this.state.table;
@@ -71,7 +76,19 @@ class CampaignLogTable extends React.Component {
             this.state.columns = table.columns.map(({title}) => title);
         }
         return (this.state.authenticated !== true? 
-				<div>Access Denied</div>
+				// <div>Access Denied</div>
+                <div>
+                    <h6 style={{color: 'blue'}}>{"You must be logged in to access this page"}</h6>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        onClick={this.redirectToLogin}
+                        center
+                    >
+                        Login
+                    </Button>
+                </div>
 				:
                 <div>
                 <div className="d-flex justify-content-end">
