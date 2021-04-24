@@ -14,9 +14,12 @@ function App() {
                     <Switch>
                         <Route path="/" component={LoginPage} exact/>
                         <Route exact path="/HomePage"><HomePage/></Route>
-                        <Route path="/campaignPage/:templateName" render={(props) => (<CampaignPage {...props}/>)}> </Route>
-                        <Route path="/CampaignLogTable" render={(props) => (<CampaignLogTable {...props}/>)}> </Route>
-                        <Route path="/EmailLogTable" render={(props) => (<EmailLogTable {...props}/>)}> </Route>
+                        <Route path="/campaignPage/:templateName" render={(props) => (<CampaignPage {...props}/>)}>
+                        </Route>
+                        <Route path="/CampaignLogTable" render={(props) => (<CampaignLogTable {...props}/>)}>
+                        </Route>
+                        <Route path="/EmailLogTable" render={(props) => (<EmailLogTable {...props}/>)}>
+                        </Route>
                     </Switch>
                 </BrowserRouter>
             </div>

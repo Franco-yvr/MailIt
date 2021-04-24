@@ -21,11 +21,16 @@ class EmailLogTable extends React.Component {
                                "Delivery Status", 
                                "Open Status"];
         this.state = {
-            templateName: this.props.location.state.templateName,
-            campaignId: this.props.location.state.campaignId,
+            templateName: false,
+            campaignId: false,
             columns: [],
             authenticated: false
         }
+        if (this.props.location.state) {
+            this.state.templateName = this.props.match.params.templateName;
+            this.state.campaignId = this.props.location.state.campaignId;
+        }
+
     }
 
     //Retrieve Email logs from AWS to create a table

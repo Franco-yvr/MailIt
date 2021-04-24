@@ -33,16 +33,22 @@ class CampaignPage extends React.Component {
             EMAIL_NOT_SES_VERIFIED: "This Email Address is not registered with this service. Please ask the team to register your email before continuing."
         });
         this.state = { 
-            templateKey: this.props.location.state.templateKey,
+            templateKey: false,
             docHtml: '', 
-            dynamicValues: this.props.location.state.dynamicValues,
-            templateName: this.props.match.params.templateName,
+            dynamicValues: false,
+            templateName: false,
             emailAddress: '' ,
             message: null,
             loading: false,
             subjectLine: "",
             authenticated: false
         }
+        if (this.props.location.state) {
+            this.state.templateKey = this.props.location.state.templateKey;
+            this.state.dynamicValues = this.props.location.state.dynamicValues;
+            this.state.templateName = this.props.match.params.templateName;
+        }
+
         
         this.handleEmailChange = this.handleEmailChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);

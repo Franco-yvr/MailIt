@@ -19,11 +19,13 @@ class CampaignLogTable extends React.Component {
         this.sortableColumns = ["CampaignId",  "Date of Campaign Launch", "No. of People Emailed",
         "No. of Emails Successfully Delivered", "No. of Opened Emails"];
         this.state = {
-            templateName: Object.is(this.props, "undefined") ? false : this.props.location.state.templateName,
-            // this.props.location.state.templateName,
+            templateName: false,
             table: null,
             columns: [],
             authenticated: false
+        }
+        if (this.props.location.state) {
+            this.state.templateName = this.props.location.state.templateName;
         }
     }
 
@@ -77,19 +79,19 @@ class CampaignLogTable extends React.Component {
             this.state.columns = table.columns.map(({title}) => title);
         }
         return (this.state.authenticated !== true ?
-				<div>Access Denied</div>
-                // <div>
-                //     <h6 style={{color: 'blue'}}>{"You must be logged in to access this page"}</h6>
-                //     <Button
-                //         type="submit"
-                //         variant="contained"
-                //         color="primary"
-                //         onClick={this.redirectToLogin}
-                //         center
-                //     >
-                //         Login
-                //     </Button>
-                // </div>
+				// <div>Access Denied</div>
+                <div>
+                    <h6 style={{color: 'blue'}}>{"You must be logged in to access this page"}</h6>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        onClick={this.redirectToLogin}
+                        center
+                    >
+                        Login
+                    </Button>
+                </div>
 				:
                 <div>
                 <div className="d-flex justify-content-end">
@@ -115,7 +117,7 @@ class CampaignLogTable extends React.Component {
                     </div> 
                     <div className="float-right col-lg-9 pl-0 pr-1">
                         {table && table.numRows > 0 ? <h1 className="mt-2">{`Campaign logs: ${this.state.templateName}`}</h1> :
-                        <div></div>}
+                        <div> </div>}
                         {table? (table.numRows > 0 ? <Table data={table} columnsToSort={this.getColumnsToSort()}/> :
                         <h1 className="vertical-horizontal-center"> No campaigns for this template yet</h1> )
                         : 
