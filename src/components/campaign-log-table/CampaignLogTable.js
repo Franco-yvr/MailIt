@@ -3,7 +3,9 @@ import axios from 'axios';
 import Table from "../Table";
 import { Link } from "react-router-dom";
 import {Redirect} from "react-router";
+import {Auth} from 'aws-amplify';
 import {compareTableFormattedDate} from "../util.js";
+import Button from "@material-ui/core/Button";
 
 class CampaignLogTable extends React.Component {
     constructor(props) {
@@ -17,11 +19,12 @@ class CampaignLogTable extends React.Component {
         this.sortableColumns = ["CampaignId",  "Date of Campaign Launch", "No. of People Emailed",
         "No. of Emails Successfully Delivered", "No. of Opened Emails"];
         this.state = {
-            templateName: this.props.location.state.templateName,
+            templateName: false,
             table: null,
             columns: [],
-            authenticated: this.props.user
+            authenticated: false
         }
+        this.state.templateName = this.props.match.params.templateName;
     }
 
     //Retrieve Campaign logs from AWS to create a table
@@ -42,7 +45,6 @@ class CampaignLogTable extends React.Component {
             .then(response => {
                 this.sortCampaignLogs(response.data)
                 let table = this.dataToTable(response.data.body);
-                console.log(table);
                 this.setState({table: table})
             })
             .catch(function (error) {
@@ -50,8 +52,21 @@ class CampaignLogTable extends React.Component {
             });
     }
 
-    componentDidMount() {
-        this.getLogTableData()
+    async componentDidMount() {
+        await Auth.currentAuthenticatedUser().then(() => {
+			this.setState({authenticated: true});
+            this.getLogTableData();
+		}).catch(() => {
+			this.setState({authenticated: false});
+		});
+    }
+
+    onLogOut = async() => {
+		await Auth.signOut();
+	}
+
+    redirectToLogin() {
+        window.location = "/"
     }
 
     //Render the campaign log grid page 
@@ -60,20 +75,32 @@ class CampaignLogTable extends React.Component {
         if (table) {
             this.state.columns = table.columns.map(({title}) => title);
         }
-        if (this.state.authenticated !== true) {
-            return <Redirect to="/" />
-        } else {
-            return (
+        return (this.state.authenticated !== true ?
+				// <div>Access Denied</div>
+                <div>
+                    <h6 style={{color: 'blue'}}>{"You must be logged in to access this page"}</h6>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        onClick={this.redirectToLogin}
+                        center
+                    >
+                        Login
+                    </Button>
+                </div>
+				:
                 <div>
                 <div className="d-flex justify-content-end">
-                        <Link
-                            role="button"
-                            id="logOutButton"
-                            to={"/"}
-                            className="btn btn-primary mr-1 mt-1"
-                            >
-                            Log out
-                        </Link>
+                    <Link
+						to={"/"}
+						>
+						<button className="btn btn-primary mr-1 mt-1" 
+							id='logOutButton' 
+							onClick={this.onLogOut}> 
+							Log Out 
+						</button>
+					</Link>
 				</div>
                 <div className="scroll container-fluid" style={{"max-width": "100%"}}>
                     <div className="float-left col-lg-3 ">
@@ -87,16 +114,15 @@ class CampaignLogTable extends React.Component {
                     </div> 
                     <div className="float-right col-lg-9 pl-0 pr-1">
                         {table && table.numRows > 0 ? <h1 className="mt-2">{`Campaign logs: ${this.state.templateName}`}</h1> :
-                        <div></div>}
+                        <div> </div>}
                         {table? (table.numRows > 0 ? <Table data={table} columnsToSort={this.getColumnsToSort()}/> :
                         <h1 className="vertical-horizontal-center"> No campaigns for this template yet</h1> )
                         : 
                         <Table loading={true}/>}
                     </div>
                 </div> 
-                </div>       
+                </div>
             );
-        }
         
             
     }
@@ -183,12 +209,13 @@ class CampaignLogTable extends React.Component {
                     break;
                 }
                 case "Email Log": {
+                    console.log(this.state.templateName);
                     content.push({
                         button: {
                             displayName: "View",
-                            link: `/EmailLogTable/`,
-                            data: {templateName: this.state.templateName, campaignId: row['CampaignId']},
-                            }});
+                            link: `/EmailLogTable/${this.state.templateName}/${row['CampaignId']}`
+                        }
+                    });
                     break;
                 }
                 
