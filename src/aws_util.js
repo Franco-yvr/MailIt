@@ -28,7 +28,6 @@ const uploadFile = async (fileInput,BUCKET_NAME, templateName) => {
 
     var body = {
         bucket: BUCKET_NAME,
-        fileName: fileName,
         content: fileBase64String,
         templateName: templateName,
         contentType: fileType
