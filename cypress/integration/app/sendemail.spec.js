@@ -25,7 +25,7 @@ context("Assertions", () => {
       cy.wait(10000);
 
       // click ready
-      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.get('table').contains('td', "donotremove").siblings().contains('a', 'Start').click();
       cy.wait(50000);
 
       //single email test
@@ -61,7 +61,7 @@ context("Assertions", () => {
       cy.wait(50000);
 
       //open campaign logs
-      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'View').click();
+      cy.get('table').contains('td', "donotremove").siblings().contains('a', 'View').click();
       cy.contains("Campaign logs: donotremove");
       cy.wait(5000);
 
@@ -88,7 +88,7 @@ context("Assertions", () => {
       cy.wait(10000);
 
       // click ready
-      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.get('table').contains('td', "donotremove").siblings().contains('a', 'Start').click();
       cy.wait(50000);
 
       //upload csv
@@ -128,7 +128,7 @@ context("Assertions", () => {
       cy.wait(50000);
 
       //open campaign logs
-      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'View').click();
+      cy.get('table').contains('td', "donotremove").siblings().contains('a', 'View').click();
       cy.contains("Campaign logs: donotremove");
       cy.wait(50000);
 
@@ -159,7 +159,7 @@ context("Assertions", () => {
       cy.wait(10000);
 
       // click ready
-      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.get('table').contains('td', "donotremove").siblings().contains('a', 'Start').click();
       cy.wait(5000);
 
       //single email test
@@ -200,7 +200,7 @@ context("Assertions", () => {
       cy.wait(10000);
 
       // click ready
-      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.get('table').contains('td', "donotremove").siblings().contains('a', 'Start').click();
       cy.wait(5000);
 
       //single email test
@@ -240,7 +240,7 @@ context("Assertions", () => {
       cy.wait(10000);
 
       // click ready
-      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.get('table').contains('td', "donotremove").siblings().contains('a', 'Start').click();
       cy.wait(5000);
 
       //single email test
@@ -284,7 +284,7 @@ context("Assertions", () => {
       cy.wait(10000);
 
       // click ready
-      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.get('table').contains('td', "donotremove").siblings().contains('a', 'Start').click();
       cy.wait(5000);
 
       //single email test
@@ -327,7 +327,7 @@ context("Assertions", () => {
       cy.wait(10000);
 
       // click ready
-      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.get('table').contains('td', "donotremove").siblings().contains('a', 'Start').click();
       cy.wait(5000);
 
       //single email test

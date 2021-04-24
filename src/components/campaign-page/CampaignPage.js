@@ -31,7 +31,6 @@ class CampaignPage extends React.Component {
             EMAIL_NOT_SES_VERIFIED: "This Email Address is not registered with this service. Please ask the team to register your email before continuing."
         });
         this.state = { 
-            templateKey: this.props.location.state.templateKey,
             docHtml: '', 
             dynamicValues: this.props.location.state.dynamicValues,
             templateName: this.props.match.params.templateName,
@@ -153,15 +152,22 @@ class CampaignPage extends React.Component {
 
     async componentDidMount() {
         var s3 = new AWS.S3();
-        s3.getObject({ Bucket: BUCKET_NAME, Key: this.state.templateKey }, (err, data) => {
+        try{
+            s3.getObject({ Bucket: BUCKET_NAME, Key: this.state.templateName }, (err, data) => {
             if (err) {
                 console.log("Could not get Object from S3 Bucket Error",err);
-                throw err
+                this.setState({docHtml: "Template Preview Could Not Be Loaded"});
+            } else {
+                mammoth.convertToHtml({ arrayBuffer: data.Body }).then((v, m) => {
+                    this.setState({ docHtml: v.value });
+                });
             }
-            mammoth.convertToHtml({ arrayBuffer: data.Body }).then((v, m) => {
-                this.setState({ docHtml: v.value });
-            });
-        });
+            
+        })
+        } catch(error) {
+            this.setState({docHtml: "Template Preview Could Not Be Loaded"});
+        }
+        
     }
 
     //Create the HTML text inputs for each dynamic value
