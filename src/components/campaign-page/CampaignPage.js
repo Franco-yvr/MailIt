@@ -5,6 +5,8 @@ import sendSingleEmail from '../../api-service.js'
 import BatchEmailCampaignCreation from "./BatchEmailCampaignCreation";
 import { Link } from "react-router-dom";
 import {Redirect} from "react-router";
+import {Auth} from 'aws-amplify';
+import Button from "@material-ui/core/Button";
 var AWS = require('aws-sdk');
 var mammoth = require("mammoth");
 
@@ -32,14 +34,20 @@ class CampaignPage extends React.Component {
         });
         this.state = { 
             docHtml: '', 
-            dynamicValues: this.props.location.state.dynamicValues,
-            templateName: this.props.match.params.templateName,
+            dynamicValues: false,
+            templateName: false,
             emailAddress: '' ,
             message: null,
             loading: false,
             subjectLine: "",
-            authenticated: this.props.user
+            authenticated: false
         }
+        if (this.props.location.state) {
+            this.state.templateKey = this.props.location.state.templateKey;
+            this.state.dynamicValues = this.props.location.state.dynamicValues;
+            this.state.templateName = this.props.match.params.templateName;
+        }
+
         
         this.handleEmailChange = this.handleEmailChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -47,11 +55,30 @@ class CampaignPage extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
+    onLogOut = async() => {
+		await Auth.signOut();
+	}
+
+    redirectToLogin() {
+        window.location = "/"
+    }
+
     render() {
-        if (this.state.authenticated !== true) {
-            return <Redirect to="/" />
-        } else {
-            return (
+       return (this.state.authenticated !== true? 
+				// <div>Access Denied</div>
+               <div>
+                   <h6 style={{color: 'blue'}}>{"You must be logged in to access this page"}</h6>
+                   <Button
+                       type="submit"
+                       variant="contained"
+                       color="primary"
+                       onClick={this.redirectToLogin}
+                       center
+                   >
+                       Login
+                   </Button>
+               </div>
+				:
                 <div className="container-fluid my-container">
                     <div className="row my-rows" style={{ textAlign: 'center' }}>
                         <div className="col-6 my-col">{`Preview Template: ${this.state.templateName}`}</div>
@@ -146,28 +173,27 @@ class CampaignPage extends React.Component {
                         </div>
                     </div>
                 </div>
-            );
-        }
+            );     
     }
 
     async componentDidMount() {
-        var s3 = new AWS.S3();
-        try{
+        await Auth.currentAuthenticatedUser().then(() => {
+            this.setState({authenticated: true});
+            var s3 = new AWS.S3();
             s3.getObject({ Bucket: BUCKET_NAME, Key: this.state.templateName }, (err, data) => {
-            if (err) {
-                console.log("Could not get Object from S3 Bucket Error",err);
-                this.setState({docHtml: "Template Preview Could Not Be Loaded"});
-            } else {
-                mammoth.convertToHtml({ arrayBuffer: data.Body }).then((v, m) => {
-                    this.setState({ docHtml: v.value });
-                });
-            }
-            
-        })
-        } catch(error) {
-            this.setState({docHtml: "Template Preview Could Not Be Loaded"});
-        }
-        
+                if (err) {
+                    console.log("Could not get Object from S3 Bucket Error",err);
+                    this.setState({docHtml: "Template Preview Could Not Be Loaded"});
+                } else {
+                     mammoth.convertToHtml({ arrayBuffer: data.Body }).then((v, m) => {
+                        this.setState({ docHtml: v.value });
+                    });
+                }
+            });
+        }).catch((error) => {
+            console.log(error);
+            this.setState({authenticated: false});
+        });
     }
 
     //Create the HTML text inputs for each dynamic value
