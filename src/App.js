@@ -16,9 +16,9 @@ function App() {
                         <Route exact path="/HomePage"><HomePage/></Route>
                         <Route path="/campaignPage/:templateName" render={(props) => (<CampaignPage {...props}/>)}>
                         </Route>
-                        <Route path="/CampaignLogTable" render={(props) => (<CampaignLogTable {...props}/>)}>
+                        <Route path="/CampaignLogTable/:templateName" render={(props) => (<CampaignLogTable {...props}/>)}>
                         </Route>
-                        <Route path="/EmailLogTable" render={(props) => (<EmailLogTable {...props}/>)}>
+                        <Route path="/EmailLogTable/:templateName/:campaignId" render={(props) => (<EmailLogTable {...props}/>)}>
                         </Route>
                     </Switch>
                 </BrowserRouter>

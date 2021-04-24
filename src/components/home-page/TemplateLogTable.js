@@ -253,9 +253,7 @@ class TemplateLogTable extends React.Component {
                 } else {
                     templateNameContent = templateNameColumn.content[i]
                 }
-                current.button.link = `CampaignLogTable`;
-                current.button.data = {
-                    templateName: templateNameContent};
+                current.button.link = `CampaignLogTable/${templateNameContent}`;
             }
         }
     }

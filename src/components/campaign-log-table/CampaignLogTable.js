@@ -24,9 +24,7 @@ class CampaignLogTable extends React.Component {
             columns: [],
             authenticated: false
         }
-        if (this.props.location.state) {
-            this.state.templateName = this.props.location.state.templateName;
-        }
+        this.state.templateName = this.props.match.params.templateName;
     }
 
     //Retrieve Campaign logs from AWS to create a table
@@ -47,7 +45,6 @@ class CampaignLogTable extends React.Component {
             .then(response => {
                 this.sortCampaignLogs(response.data)
                 let table = this.dataToTable(response.data.body);
-                console.log(table);
                 this.setState({table: table})
             })
             .catch(function (error) {
@@ -212,12 +209,13 @@ class CampaignLogTable extends React.Component {
                     break;
                 }
                 case "Email Log": {
+                    console.log(this.state.templateName);
                     content.push({
                         button: {
                             displayName: "View",
-                            link: `/EmailLogTable/`,
-                            data: {templateName: this.state.templateName, campaignId: row['CampaignId']},
-                            }});
+                            link: `/EmailLogTable/${this.state.templateName}/${row['CampaignId']}`
+                        }
+                    });
                     break;
                 }
                 

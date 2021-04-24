@@ -26,10 +26,8 @@ class EmailLogTable extends React.Component {
             columns: [],
             authenticated: false
         }
-        if (this.props.location.state) {
-            this.state.templateName = this.props.match.params.templateName;
-            this.state.campaignId = this.props.location.state.campaignId;
-        }
+        this.state.templateName = this.props.match.params.templateName;
+        this.state.campaignId = this.props.match.params.campaignId;
 
     }
 
@@ -111,7 +109,7 @@ class EmailLogTable extends React.Component {
                         <Link 
                             className="btn btn-primary d-block mt-5 ml-5 mr-5 mb-5"
                             role="button"
-                            to={{pathname: "/CampaignLogTable/", state: {templateName: this.state.templateName}}}>
+                            to={{pathname: `/CampaignLogTable/${this.state.templateName}`}}>
                             {"Return to Campaign Page"}
                         </Link>
                         <Link 

@@ -180,18 +180,20 @@ class CampaignPage extends React.Component {
         await Auth.currentAuthenticatedUser().then(() => {
             this.setState({authenticated: true});
             var s3 = new AWS.S3();
-            s3.getObject({ Bucket: BUCKET_NAME, Key: this.state.templateKey }, (err, data) => {
+            s3.getObject({ Bucket: BUCKET_NAME, Key: this.state.templateName }, (err, data) => {
                 if (err) {
                     console.log("Could not get Object from S3 Bucket Error",err);
                     this.setState({docHtml: "Template Preview Could Not Be Loaded"});
+                } else {
+                     mammoth.convertToHtml({ arrayBuffer: data.Body }).then((v, m) => {
+                        this.setState({ docHtml: v.value });
+                    });
                 }
-                mammoth.convertToHtml({ arrayBuffer: data.Body }).then((v, m) => {
-                    this.setState({ docHtml: v.value });
-                });
             });
         }).catch((error) => {
-			this.setState({authenticated: false});
-		});
+            console.log(error);
+            this.setState({authenticated: false});
+        });
     }
 
     //Create the HTML text inputs for each dynamic value
