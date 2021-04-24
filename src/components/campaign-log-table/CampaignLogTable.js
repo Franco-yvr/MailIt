@@ -19,7 +19,8 @@ class CampaignLogTable extends React.Component {
         this.sortableColumns = ["CampaignId",  "Date of Campaign Launch", "No. of People Emailed",
         "No. of Emails Successfully Delivered", "No. of Opened Emails"];
         this.state = {
-            templateName: this.props.location.state.templateName,
+            templateName: Object.is(this.props, "undefined") ? false : this.props.location.state.templateName,
+            // this.props.location.state.templateName,
             table: null,
             columns: [],
             authenticated: false
@@ -75,20 +76,20 @@ class CampaignLogTable extends React.Component {
         if (table) {
             this.state.columns = table.columns.map(({title}) => title);
         }
-        return (this.state.authenticated !== true? 
-				// <div>Access Denied</div>
-                <div>
-                    <h6 style={{color: 'blue'}}>{"You must be logged in to access this page"}</h6>
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        onClick={this.redirectToLogin}
-                        center
-                    >
-                        Login
-                    </Button>
-                </div>
+        return (this.state.authenticated !== true ?
+				<div>Access Denied</div>
+                // <div>
+                //     <h6 style={{color: 'blue'}}>{"You must be logged in to access this page"}</h6>
+                //     <Button
+                //         type="submit"
+                //         variant="contained"
+                //         color="primary"
+                //         onClick={this.redirectToLogin}
+                //         center
+                //     >
+                //         Login
+                //     </Button>
+                // </div>
 				:
                 <div>
                 <div className="d-flex justify-content-end">
@@ -121,8 +122,8 @@ class CampaignLogTable extends React.Component {
                         <Table loading={true}/>}
                     </div>
                 </div> 
-                </div>       
-            );    
+                </div>
+            );
         
             
     }
