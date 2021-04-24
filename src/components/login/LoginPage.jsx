@@ -15,7 +15,6 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import {Redirect} from "react-router";
-//import useCheckUser from "./useCheckUser";
 
 const initialFormState = {
     username: "", email: "", password: "", confirmPassword: "", newPassword: "", authCode: "", formType: "signIn"
@@ -27,7 +26,6 @@ const useStyles = makeStyles((theme) => ({
     },
     image: {
         backgroundImage: 'url(https://create.hsbc/content/dam/brandhub/homeassets/IceHex.jpg)',
-        // 'url(https://source.unsplash.com/random)',
         backgroundRepeat: 'no-repeat',
         backgroundColor:
             theme.palette.type === 'light' ? theme.palette.grey[50] : theme.palette.grey[900],
@@ -58,7 +56,6 @@ function LoginPage() {
     const [formState, updateFormState] = useState(initialFormState)
     const [showErrorMsg,setShowErrorMsg] = useState(false); 
     const [errorMsg,setErrorMsg] = useState("");
-    //const { user, checkUser } = useCheckUser();
     function onChange(e) {
         e.persist()
         updateFormState(() => ({...formState, [e.target.name]: e.target.value}))
@@ -85,12 +82,7 @@ function LoginPage() {
         } else {
             try {
                 await Auth.signIn(email, password);
-                // const user  = await Auth.currentAuthenticatedUser();
-                    // .then((boolean)=>{ console.log})
                 updateFormState(() => ({...formState, formType: "signedIn"}))
-                //checkUser();
-                // console.log(updateUser)
-                // updateUser(user)
             } catch (error) {
                 signInErrorMessageProcessing(error);
             }
@@ -153,7 +145,6 @@ function LoginPage() {
                         newPassword,       // the new password
                     ).then(user => {
                         updateFormState(() => ({...formState, formType: "signedIn"}))
-                        // at this time the user is logged in if no MFA required
                     }).catch(error => {
                         setShowErrorMsg(true);
                         setErrorMsg("An error has occured: " + error.message);
@@ -169,7 +160,6 @@ function LoginPage() {
         
     }
 
-    //Login component rendering for main authentication page and temporary sign in page
     return (
         <div className="App"> {
             formType === "signIn" && (
@@ -226,14 +216,8 @@ function LoginPage() {
                                         Sign In
                                     </Button>
                                     <Grid container>
-                                        {/*<Grid item xs>*/}
-                                        {/*    <Link href="#" variant="body2">*/}
-                                        {/*        Forgot password?*/}
-                                        {/*    </Link>*/}
-                                        {/*</Grid>*/}
                                         <Grid item>
                                             <a
-                                                // href="/ConfirmCredentials" variant="body2"
                                                 href="#"
                                                 onClick={confirmCredentials}
                                                 id="change-password-link"
@@ -288,7 +272,6 @@ function LoginPage() {
                                         label="Temporary Password"
                                         type="password"
                                         id="temp-password"
-                                        // autoComplete="current-password"
                                         onChange={onChange}
                                     />
                                     <TextField
@@ -315,10 +298,6 @@ function LoginPage() {
                                         autoComplete="current-password"
                                         onChange={onChange}
                                     />
-                                    {/*<FormControlLabel*/}
-                                    {/*    control={<Checkbox value="remember" color="primary" />}*/}
-                                    {/*    label="Remember me"*/}
-                                    {/*/>*/}
                                     {showErrorMsg?<h6 style={{color: 'red'}}>{errorMsg}</h6>:null}
                                     <Button
                                         type="submit"
@@ -332,11 +311,6 @@ function LoginPage() {
                                         Update Password and Sign In
                                     </Button>
                                     <Grid container>
-                                        {/*<Grid item xs>*/}
-                                        {/*    <Link href="#" variant="body2">*/}
-                                        {/*        Forgot password?*/}
-                                        {/*    </Link>*/}
-                                        {/*</Grid>*/}
                                         <Grid item>
                                             <Link
                                                 href="/" variant="body2">
@@ -344,9 +318,6 @@ function LoginPage() {
                                             </Link>
                                         </Grid>
                                     </Grid>
-                                    {/*<Box mt={5}>*/}
-                                    {/*    <Copyright />*/}
-                                    {/*</Box>*/}
                                 </form>
                             </div>
                         </Grid>
@@ -362,9 +333,6 @@ function LoginPage() {
     );
 }
 
-// LoginPage.propTypes = {
-//     updateUser: PropTypes.func.isRequired
-// }
 
 export default LoginPage
 

@@ -25,7 +25,7 @@ context("Assertions", () => {
       cy.wait(5000);
 
       // click logoff
-      cy.get('a[id="logOutButton"]').click();
+      cy.get('button[id="logOutButton"]').click();
       cy.wait(5000);
 
       // validate login is visible
@@ -68,7 +68,8 @@ context("Assertions", () => {
       cy.wait(5000);
 
       // click logoff
-      cy.get('a[id="logOutButton"]').click();
+      // cy.get('a[id="logOutButton"]').click();
+      cy.get('button[id="logOutButton"]').click();
       cy.wait(5000);
 
       // validate login is visible
@@ -116,7 +117,7 @@ context("Assertions", () => {
       cy.wait(5000);
 
       // click logoff
-      cy.get('a[id="logOutButton"]').click();
+      cy.get('button[id="logOutButton"]').click();
       cy.wait(5000);
 
       // validate login is visible
