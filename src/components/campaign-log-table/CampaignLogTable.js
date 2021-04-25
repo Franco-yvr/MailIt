@@ -16,7 +16,8 @@ class CampaignLogTable extends React.Component {
                                "No. of Emails With At Least One Embedded Link Clicked",
                                "Email Log"];
         this.sortableColumns = ["CampaignId",  "Date of Campaign Launch", "No. of People Emailed",
-        "No. of Emails Successfully Delivered", "No. of Opened Emails",
+            "No. of Emails Successfully Delivered", "No. of Opened Emails",
+            "No. of Emails With At Least One Embedded Link Clicked"
         ];
         this.state = {
             templateName: this.props.location.state.templateName,
