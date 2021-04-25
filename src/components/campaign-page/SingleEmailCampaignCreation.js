@@ -21,86 +21,124 @@ class SingleEmailCampaignCreation extends React.Component {
             emailAddress: '' ,
             message: null,
             loading: false,
-            subjectLine: ""
+            subjectLine: "",
+            showModal:false,
+            dynamicValueObject:{},
+            
         }
         
         this.handleEmailChange = this.handleEmailChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubjectLineChange = this.handleSubjectLineChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleShowModal = this.handleShowModal.bind(this);
+        this.hasErrors  = this.hasErrors .bind(this)
     }
     
     render() {
         return (
-            <div>
-                <div className="row justify-content-space-evenly my-row mt-5 mb-2">
-                    <img src={userLogo} className="img-rounded" width="30" height="30"/>
-                    <h5>Single Email Campaign</h5>
-                </div>
-                <div className="row my-row10">
-                {"Sends email to specified email address with template using the given dynamic values"}
-                </div>
-                <div className="form-group">
-                    <div className="row justify-content-space-evenly my-row2">
-                        <div className="input-group mb-1">
-                            <div className="input-group-prepend dynamic-value-key-container" >
-                                <span className="ellipsis input-group-text ">Single Email Address</span>
-                            </div>
-                            <input
-                                type="text"
-                                id="email-address"
-                                className="form-control"
-                                aria-label="EmailAddress"
-                                onChange={this.handleEmailChange}
-                                required>
-                            </input>
-                        </div>
+            <>
+                <div>
+                    <div className="row justify-content-space-evenly my-row mt-5 mb-2">
+                        <img src={userLogo} className="img-rounded" width="30" height="30"/>
+                        <h5>Single Email Campaign</h5>
                     </div>
-                    <div className="row justify-content-space-evenly my-row2">
-                        <div className="input-group mb-1">
-                            <div className="input-group-prepend dynamic-value-key-container">
-                                <span className="ellipsis input-group-text">Subject Line</span>
-                            </div>
-                            <input
-                                type="text"
-                                id="subject-line"
-                                className="form-control"
-                                aria-label="subjectLine"
-                                onChange={this.handleSubjectLineChange}
-                                required>
-                            </input>
-                        </div>
+                    <div className="row my-row10">
+                    {"Sends email to specified email address with template using the given dynamic values"}
                     </div>
-                    {this.props.dynamicValues.length > 0 ?
+                    <div className="form-group">
                         <div className="row justify-content-space-evenly my-row2">
-                            Dynamic Values
-                            <div className="input-group mb-1 " >
-                                {this.createDynamicValueTextFields()}
+                            <div className="input-group mb-1">
+                                <div className="input-group-prepend dynamic-value-key-container" >
+                                    <span className="ellipsis input-group-text ">Single Email Address</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    id="email-address"
+                                    className="form-control"
+                                    aria-label="EmailAddress"
+                                    onChange={this.handleEmailChange}
+                                    required>
+                                </input>
                             </div>
-                        </div> : null }
-                </div>
-                <div className="row justify-content-right my-row1 mb-1 button-spacing">
-                    <button type="button" className="btn btn-success" id='button1' onClick={this.handleSubmit}>Submit</button>
-                </div>
-                {this.state.loading ? 
-                    <div className="horizontal-center">
-                        <div className="spinner-border text-primary" style={{width: "2rem", height: "2rem"}}
-                            role="status">
                         </div>
-                    </div>: null
-                }
-                {this.state.message != null ?
-                    <div id={
-                        this.state.message === this.messages.SUCCESS ? "emailSentAlert" : "emailSentFailed" }
-                            className={
-                                this.state.message === this.messages.SUCCESS ? "alert alert-success" : "alert alert-danger" }
-                            role="alert">
-                        {`${this.state.message}`}
+                        <div className="row justify-content-space-evenly my-row2">
+                            <div className="input-group mb-1">
+                                <div className="input-group-prepend dynamic-value-key-container">
+                                    <span className="ellipsis input-group-text">Subject Line</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    id="subject-line"
+                                    className="form-control"
+                                    aria-label="subjectLine"
+                                    onChange={this.handleSubjectLineChange}
+                                    required>
+                                </input>
+                            </div>
+                        </div>
+                        {this.props.dynamicValues.length > 0 ?
+                            <div className="row justify-content-space-evenly my-row2">
+                                Dynamic Values
+                                <div className="input-group mb-1 " >
+                                    {this.createDynamicValueTextFields()}
+                                </div>
+                            </div> : null }
                     </div>
-                    :
-                    <div></div>
-                }
-            </div>
+                    <div className="row justify-content-right my-row1 mb-1 button-spacing">
+                        <button type="button" className="btn btn-success" id='button1' onClick={this.handleSubmit}>Submit</button>
+                        <button type="button" class="btn btn-primary ml-1"onClick={this.handleShowModal()} data-toggle="modal" >Get Request JSON Body</button>
+                    </div>
+                    {this.state.loading ? 
+                        <div className="horizontal-center">
+                            <div className="spinner-border text-primary" style={{width: "2rem", height: "2rem"}}
+                                role="status">
+                            </div>
+                        </div>: null
+                    }
+                    {this.state.message != null ?
+                        <div id={
+                            this.state.message === this.messages.SUCCESS ? "emailSentAlert" : "emailSentFailed" }
+                                className={
+                                    this.state.message === this.messages.SUCCESS ? "alert alert-success" : "alert alert-danger" }
+                                role="alert">
+                            {`${this.state.message}`}
+                        </div>
+                        :
+                        <div></div>
+                    }
+                </div>
+                {this.state.showModal ?
+                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">API Request Parameters</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body text-break">
+                                    <span>
+                                        &#123;
+                                        Body:
+                                        <br/>
+                                        {this.showBody()}
+                                        <br/>
+                                        &#125;
+                                        <br/>
+                                        Header: 
+                                        {this.showHeader()}
+                                    </span>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                : null}
+            </>
         );
     }
 
@@ -155,9 +193,7 @@ class SingleEmailCampaignCreation extends React.Component {
         this.setState(dynamicValueObject);
     }
 
-    
-        //Event handler for when the submit field is clicked
-    handleSubmit() {
+    hasErrors () {
         let dynamicValueInputs = document.getElementsByClassName('single-email');
         let emailAddressInput = document.getElementById('email-address');
         let subjectLineInput = document.getElementById('subject-line');
@@ -203,47 +239,86 @@ class SingleEmailCampaignCreation extends React.Component {
                 input.classList.remove("inputError");
                 dynamicValueObject[dynamicValue] = input.value;
             }
-        }    
-        
-
-        if(!incorrectlyFomattedEmail && !emptyField && !emailContainsWhitespace) {
-                this.setState({message: null});
-                var header = { headers: {
-                    "x-api-key": "6oyO3enoUI9Uu26ZPtdXNA2YPPCbSWn2cFRrxwRh"
-                }};
-
-                var body = {
-                    emailAddress: emailAddress,
-                    dynamicValueStrings: JSON.stringify(dynamicValueObject),
-                    templateId: this.props.templateName
-                };
-                this.setState({loading: true});
-                sendSingleEmail(header, body).then(response => {
-                    this.setState({loading: false});
-                    if(response.status === 200) {
-                        this.setState({ message: this.messages.SUCCESS })
-                    } else {
-                        this.setState({ message: this.messages.SINGLE_EMAIL_ERROR + response.data})
-                    }
-                }).catch(error => {
-                    this.setState({loading: false});
-                    if(error.response.data.includes("Email address is not verified")) {
-                        this.setState({ message: this.messages.EMAIL_NOT_SES_VERIFIED})
-                    } else {
-                        console.log("Single Email Campaign Error: " + error.response);
-                        this.setState({ message: this.messages.SINGLE_EMAIL_ERROR})
-                    }
-                    
-                })
-
-        } else if(emptyField){
+        }
+        this.setState({dynamicValueObject})
+        console.log("dynamicValueObject",dynamicValueObject)
+        if(emptyField){
             this.setState({ message: this.messages.EMPTY_FIELD });
         } else if(incorrectlyFomattedEmail) {
             this.setState({ message: this.messages.INCORRECT_EMAIL_FORMAT });
         } else if(emailContainsWhitespace) {
             this.setState({ message: this.messages.EMAIL_CONTAINS_WHITESPACE});
         }
+        if(!incorrectlyFomattedEmail && !emptyField && !emailContainsWhitespace) 
+            return false
+        return true
+    }
+    handleShowModal() {
+        if(!this.hasErrors()) {
+            this.setState({ message: null});
+            this.setState({showModal: true})
+        }
+    }
+    showBody() {
+        let emailAddress = this.state['emailAddress'];
 
+        var header = { headers: {
+            "x-api-key": "6oyO3enoUI9Uu26ZPtdXNA2YPPCbSWn2cFRrxwRh"
+        }};
+        var body = {
+            emailAddress: emailAddress,
+            dynamicValueStrings: JSON.stringify(this.state.dynamicValueObject),
+            templateId: this.state.templateName
+        };
+        let reformattedJSON = JSON.stringify(body)
+
+        return reformattedJSON.substring(1,reformattedJSON.length-1)
+    }
+
+    showHeader() {
+        var header = { headers: {
+            "x-api-key": "6oyO3enoUI9Uu26ZPtdXNA2YPPCbSWn2cFRrxwRh"
+        }};
+
+        return JSON.stringify(header);
+    }
+
+    
+    handleSubmit() {        
+        let emailAddress = this.state['emailAddress'];
+
+
+        if(!this.hasErrors()) {
+            this.setState({message: null});
+            let header = { headers: {
+                "x-api-key": "6oyO3enoUI9Uu26ZPtdXNA2YPPCbSWn2cFRrxwRh"
+            }};
+
+            let body = {
+                emailAddress: emailAddress,
+                dynamicValueStrings: JSON.stringify(this.state.dynamicValueObject),
+                templateId: this.state.templateName
+            };
+
+            this.setState({loading: true});
+            sendSingleEmail(header, body).then(response => {
+                this.setState({loading: false});
+                if(response.status === 200) {
+                    this.setState({ message: this.messages.SUCCESS })
+                } else {
+                    this.setState({ message: this.messages.SINGLE_EMAIL_ERROR + response.data})
+                }
+            }).catch(error => {
+                this.setState({loading: false});
+                if(error.response.data.includes("Email address is not verified")) {
+                    this.setState({ message: this.messages.EMAIL_NOT_SES_VERIFIED})
+                } else {
+                    console.log("Single Email Campaign Error: " + error.response);
+                    this.setState({ message: this.messages.SINGLE_EMAIL_ERROR})
+                }
+                    
+            })
+        }
     }
 
     isEmailCorrectlyFormatted(email) {
