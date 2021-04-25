@@ -88,8 +88,8 @@ class CampaignPage extends React.Component {
                                         Single/Batch Email Campaign
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" onClick={() => this.setState({ setVisible: true })}>Single Email Campaign</a>
-                                        <a class="dropdown-item" id="RemoveTemplateDropDown" onClick={() => this.setState({ setVisible: false })}>Batch Email Campaign</a>
+                                        <a class="dropdown-item" id="SingleEmailTemplateDropDown" onClick={() => this.setState({ setVisible: true })}>Single Email Campaign</a>
+                                        <a class="dropdown-item" id="BatchEmailTemplateDropDown" onClick={() => this.setState({ setVisible: false })}>Batch Email Campaign</a>
                                     </div>
                             </div>
                                 {this.state.setVisible? <SingleEmailCampaignCreation dynamicValues={this.state.dynamicValues} templateName={this.state.templateName}/> :

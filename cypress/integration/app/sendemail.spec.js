@@ -91,6 +91,12 @@ context("Assertions", () => {
       cy.get('table').contains('td', "donotremove").siblings().contains('a', 'Start').click();
       cy.wait(50000);
 
+      cy.get('#dropdownMenuButton').click();
+      cy.wait(2000);
+
+      cy.get('#BatchEmailTemplateDropDown').click();
+      cy.wait(2000);
+
       //upload csv
       cy.fixture('Example_File.csv').then(fileContent => {
         cy.get('input[type="file"]').attachFile({
