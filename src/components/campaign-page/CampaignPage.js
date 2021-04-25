@@ -4,9 +4,9 @@ import "../../App.css";
 import SingleEmailCampaignCreation from "./SingleEmailCampaignCreation";
 import BatchEmailCampaignCreation from "./BatchEmailCampaignCreation";
 import { Link } from "react-router-dom";
-import {Redirect} from "react-router";
 import {Auth} from 'aws-amplify';
 import Button from "@material-ui/core/Button";
+
 var AWS = require('aws-sdk');
 var mammoth = require("mammoth");
 
@@ -98,7 +98,7 @@ class CampaignPage extends React.Component {
                         </div>
                     </div>
                 </div>
-            );     
+            );
     }
 
     async componentDidMount() {
