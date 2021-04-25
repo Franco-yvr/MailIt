@@ -1,7 +1,8 @@
 import React from "react";
 import "../../App.css";
 import userLogo from '../../assets/userLogo.png';
-import sendSingleEmail from '../../api-service.js'
+import sendSingleEmail from '../../api-service.js';
+import $ from 'jquery';
 
 const EMAIL_FORMAT_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
@@ -12,7 +13,7 @@ class SingleEmailCampaignCreation extends React.Component {
             INCORRECT_EMAIL_FORMAT:   "Email Address is incorrectly formatted. Please provide a correctly formatted email and try again.",
             EMAIL_CONTAINS_WHITESPACE: "Email Addresss contains whitespace. Please remove the whitespace and try again.",
             EMPTY_FIELD:  "At least one field is empty. Please fill all inputs above and try again.",
-            SUCCESS: "Sucessfully sent email file",
+            SUCCESS: "Sucessfully sent email",
             SINGLE_EMAIL_GENERAL_ERROR: "An error occured when trying to send your email, please check the console for more details.",
             EMAIL_NOT_SES_VERIFIED: "This Email Address is not registered with this service. Please ask the team to register your email before continuing."
         });
@@ -22,6 +23,7 @@ class SingleEmailCampaignCreation extends React.Component {
             message: null,
             loading: false,
             subjectLine: "",
+            templateName: this.props.templateName,
             showModal:false,
             dynamicValueObject:{},
             
@@ -87,7 +89,7 @@ class SingleEmailCampaignCreation extends React.Component {
                     </div>
                     <div className="row justify-content-right my-row1 mb-1 button-spacing">
                         <button type="button" className="btn btn-success" id='button1' onClick={this.handleSubmit}>Submit</button>
-                        <button type="button" class="btn btn-primary ml-1"onClick={this.handleShowModal()} data-toggle="modal" >Get Request JSON Body</button>
+                        <button type="button" class="btn btn-primary ml-1"onClick={this.handleShowModal} data-toggle="modal">Get API Request Parameters</button>
                     </div>
                     {this.state.loading ? 
                         <div className="horizontal-center">
@@ -106,38 +108,27 @@ class SingleEmailCampaignCreation extends React.Component {
                         </div>
                         :
                         <div></div>
-                    }
+                    } 
                 </div>
-                {this.state.showModal ?
-                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal" id="exampleModal" tabindex="-1" data-backdrop="false" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">API Request Parameters</h5>
+                                    <h5 class="modal-title" id="ModalLabel">API Request Parameters</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body text-break">
-                                    <span>
-                                        &#123;
-                                        Body:
-                                        <br/>
-                                        {this.showBody()}
-                                        <br/>
-                                        &#125;
-                                        <br/>
-                                        Header: 
-                                        {this.showHeader()}
-                                    </span>
+                                    {this.showAPIParameters()}
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
-                    </div> 
-                : null}
+                    </div>
+                
             </>
         );
     }
@@ -188,16 +179,16 @@ class SingleEmailCampaignCreation extends React.Component {
         */
     handleInputChange(event) {
         var dynamicValueName = event.target.getAttribute('aria-label');
-        let dynamicValueObject = {};
+        let dynamicValueObject = this.state.dynamicValueObject;
         dynamicValueObject[dynamicValueName] = event.target.value;
-        this.setState(dynamicValueObject);
+        this.setState({dynamicValueObject: dynamicValueObject});
     }
 
     hasErrors () {
         let dynamicValueInputs = document.getElementsByClassName('single-email');
         let emailAddressInput = document.getElementById('email-address');
         let subjectLineInput = document.getElementById('subject-line');
-        let dynamicValueObject = {};
+        let dynamicValueObject = this.state.dynamicValueObject;
         let emptyField = false;
         let incorrectlyFomattedEmail = false;
         let emailContainsWhitespace = false;
@@ -227,21 +218,21 @@ class SingleEmailCampaignCreation extends React.Component {
         } else {
             subjectLineInput.classList.remove("inputError");
             dynamicValueObject['SUBJECT_LINE'] = this.state.subjectLine;
+            this.setState({dynamicValueObject: dynamicValueObject});
         }
         
         //Validate Dynamic Value Inputs are correctly formatted
         for(var input of dynamicValueInputs) {
             var dynamicValue = input.getAttribute("aria-label");
-            if(!this.state[dynamicValue] || this.isEmptyStringOrNull(this.state[dynamicValue].trimEnd())) {
+            if(!this.state.dynamicValueObject[dynamicValue] || this.isEmptyStringOrNull(this.state.dynamicValueObject[dynamicValue].trimEnd())) {
                 input.classList.add("inputError");
                 emptyField = true;
             } else {
                 input.classList.remove("inputError");
-                dynamicValueObject[dynamicValue] = input.value;
             }
         }
-        this.setState({dynamicValueObject})
-        console.log("dynamicValueObject",dynamicValueObject)
+        
+        
         if(emptyField){
             this.setState({ message: this.messages.EMPTY_FIELD });
         } else if(incorrectlyFomattedEmail) {
@@ -249,38 +240,54 @@ class SingleEmailCampaignCreation extends React.Component {
         } else if(emailContainsWhitespace) {
             this.setState({ message: this.messages.EMAIL_CONTAINS_WHITESPACE});
         }
-        if(!incorrectlyFomattedEmail && !emptyField && !emailContainsWhitespace) 
+        if(!incorrectlyFomattedEmail && !emptyField && !emailContainsWhitespace) {
+            console.log(this.state)
             return false
+        }
         return true
     }
     handleShowModal() {
         if(!this.hasErrors()) {
+            $('#exampleModal').modal('show');
             this.setState({ message: null});
-            this.setState({showModal: true})
         }
+    }
+
+    showAPIParameters() {
+        return (
+            <span>
+                API URL:
+                <br/>
+                {this.showAPIUrl()}
+                <br/><br/>
+                Body:
+                <br/>
+                {this.showBody()}
+                <br/><br/>
+                Header:
+                <br/>
+                {this.showHeader()}
+            </span>
+
+        )
     }
     showBody() {
         let emailAddress = this.state['emailAddress'];
 
-        var header = { headers: {
-            "x-api-key": "6oyO3enoUI9Uu26ZPtdXNA2YPPCbSWn2cFRrxwRh"
-        }};
         var body = {
             emailAddress: emailAddress,
             dynamicValueStrings: JSON.stringify(this.state.dynamicValueObject),
             templateId: this.state.templateName
         };
-        let reformattedJSON = JSON.stringify(body)
-
-        return reformattedJSON.substring(1,reformattedJSON.length-1)
+        return JSON.stringify(body)
     }
 
     showHeader() {
-        var header = { headers: {
-            "x-api-key": "6oyO3enoUI9Uu26ZPtdXNA2YPPCbSWn2cFRrxwRh"
-        }};
+        return 'x-api-key : 6oyO3enoUI9Uu26ZPtdXNA2YPPCbSWn2cFRrxwRh';
+    }
 
-        return JSON.stringify(header);
+    showAPIUrl() {
+        return 'https://962k5qfgt3.execute-api.us-east-1.amazonaws.com/Prod/singleemailcampaign'
     }
 
     
@@ -293,7 +300,7 @@ class SingleEmailCampaignCreation extends React.Component {
             let header = { headers: {
                 "x-api-key": "6oyO3enoUI9Uu26ZPtdXNA2YPPCbSWn2cFRrxwRh"
             }};
-
+            console.log(this.state.dynamicValueObject)
             let body = {
                 emailAddress: emailAddress,
                 dynamicValueStrings: JSON.stringify(this.state.dynamicValueObject),
