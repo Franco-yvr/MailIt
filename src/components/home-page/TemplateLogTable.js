@@ -11,8 +11,8 @@ const MAX_DYNAMIC_VALUE_STRING_CHARACTER_SHOWN = 30;
 class TemplateLogTable extends React.Component {
     constructor(props) {
         super(props);
-        this.defaultColumns = ["File Name", "Template Name", "Upload Date", "Dynamic Values", "Create Email Campaign", "Campaign Logs"];
-        this.sortableColumns = ["File Name",  "Template Name", "Upload Date"];
+        this.defaultColumns = ["Template Name", "Upload Date", "Dynamic Values", "Create Email Campaign", "Campaign Logs"];
+        this.sortableColumns = ["Template Name", "Upload Date"];
         this.state = {table: null, columns: [], loading: false};
         this.getTableData = this.getTableData.bind(this);
     }
@@ -79,7 +79,6 @@ class TemplateLogTable extends React.Component {
     //Convert response data from /template-logs api to a table
     dataToTable(data) {
         let columnTitles = [
-            {displayName:"File Name", apiName: "S3Key"}, 
             {displayName:"Template Name", apiName: "TemplateName"}, 
             {displayName:"Upload Date", apiName: "DocUploadDateTime"},
             {displayName:"Dynamic Values", apiName: "DynamicValues"},
@@ -98,11 +97,10 @@ class TemplateLogTable extends React.Component {
         } else {
             console.log("Request failed with " + data.statusCode)
         }
-        let templateKeyColumn = this.getColumnWithDisplayName("File Name", table);
-        table.numRows = templateKeyColumn.content.length;
+        let templateNameColumn = this.getColumnWithDisplayName("Template Name", table);
+        table.numRows = templateNameColumn.content.length;
         this.addLinksToCampaignPage(table);
         this.addLinksToCampaignLogTable(table)
-        //this.truncateDynamicValues(table)
         return table;
     }
 
@@ -153,12 +151,6 @@ class TemplateLogTable extends React.Component {
                         content.push(" ");
                     }
                     break;
-                }
-                case "File Name": {
-                    let filename = row[columnTitle.apiName];
-                    let maybeTruncatedContent = this.getTruncatedContentIfTooLong(filename, MAX_FILENAME_STRING_CHARACTERS_SHOWN);
-                    content.push(maybeTruncatedContent);
-                    break;
                 } case "Template Name": {
                     let templateName = row[columnTitle.apiName];
                     let maybeTruncatedContent = this.getTruncatedContentIfTooLong(templateName, MAX_TEMPLATE_NAME_STRING_CHARACTERS_SHOWN);
@@ -208,7 +200,6 @@ class TemplateLogTable extends React.Component {
  	}}
  	*/
     addLinksToCampaignPage(table) {
-        let fileNameColumn = this.getColumnWithDisplayName("File Name", table);
         
         let templateNameColumn = this.getColumnWithDisplayName("Template Name", table);
         
@@ -220,12 +211,6 @@ class TemplateLogTable extends React.Component {
             
 
             if (typeof current === "object") {
-                let fileNameContent = "";
-                if(typeof fileNameColumn.content[i] === "object") {
-                    fileNameContent = fileNameColumn.content[i].truncatedContent.fullVersion;
-                } else {
-                    fileNameContent = fileNameColumn.content[i]
-                }
 
                 let templateNameContent = "";
                 if(typeof templateNameColumn.content[i] === "object") {
@@ -243,8 +228,7 @@ class TemplateLogTable extends React.Component {
                 }
                 current.button.link = `campaignPage/${templateNameContent}`;
                 console.log(current.button.link);
-                current.button.data = {dynamicValues: JSON.parse(this.commaSeperatedStringToArray(dynamicValuesContent)), 
-                                       templateKey: fileNameContent};
+                current.button.data = {dynamicValues: JSON.parse(this.commaSeperatedStringToArray(dynamicValuesContent))};
                 console.log(current.button.data);
             }
         }
@@ -269,9 +253,7 @@ class TemplateLogTable extends React.Component {
                 } else {
                     templateNameContent = templateNameColumn.content[i]
                 }
-                current.button.link = `CampaignLogTable`;
-                current.button.data = {
-                    templateName: templateNameContent};
+                current.button.link = `CampaignLogTable/${templateNameContent}`;
             }
         }
     }

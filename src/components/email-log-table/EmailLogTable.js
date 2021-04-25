@@ -3,6 +3,8 @@ import axios from 'axios';
 import Table from "../Table";
 import { Link } from "react-router-dom";
 import {Redirect} from "react-router";
+import {Auth} from 'aws-amplify';
+import Button from "@material-ui/core/Button";
 
 
 class EmailLogTable extends React.Component {
@@ -19,11 +21,14 @@ class EmailLogTable extends React.Component {
                                "Delivery Status", 
                                "Open Status"];
         this.state = {
-            templateName: this.props.location.state.templateName,
-            campaignId: this.props.location.state.campaignId,
+            templateName: false,
+            campaignId: false,
             columns: [],
-            authenticated: this.props.user
+            authenticated: false
         }
+        this.state.templateName = this.props.match.params.templateName;
+        this.state.campaignId = this.props.match.params.campaignId;
+
     }
 
     //Retrieve Email logs from AWS to create a table
@@ -49,8 +54,21 @@ class EmailLogTable extends React.Component {
             });
     }
 
-    componentDidMount() {
-        this.getEmailTableData()
+    async componentDidMount() {
+        await Auth.currentAuthenticatedUser().then(() => {
+			this.setState({authenticated: true});
+            this.getEmailTableData();
+		}).catch(() => {
+			this.setState({authenticated: false});
+		});
+    }
+
+    onLogOut = async() => {
+		await Auth.signOut();
+	}
+
+    redirectToLogin() {
+        window.location = "/"
     }
 
     //Render the email log grid page
@@ -59,27 +77,39 @@ class EmailLogTable extends React.Component {
         if (table) {
            this.state.columns = table.columns.map(({title}) => title);
         }
-        if (this.state.authenticated !== true) {
-            return <Redirect to="/"/>
-        } else {
-            return (
+        return (this.state.authenticated !== true? 
+				// <div>Access Denied</div>
+            <div>
+                <h6 style={{color: 'blue'}}>{"You must be logged in to access this page"}</h6>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    onClick={this.redirectToLogin}
+                    center
+                >
+                    Login
+                </Button>
+            </div>
+				:
                 <div>
                 <div className="d-flex justify-content-end">
-                        <Link
-                            role="button"
-                            id="logOutButton"
-                            to={"/"}
-                            className="btn btn-primary mr-1 mt-1"
-                            >
-                            Log out
-                        </Link>
+                    <Link
+						to={"/"}
+						>
+						<button className="btn btn-primary mr-1 mt-1" 
+							id='logOutButton' 
+							onClick={this.onLogOut}> 
+							Log Out 
+						</button>
+					</Link>
 				</div>
                 <div className="scroll container-fluid" style={{"max-width": "100%"}}>
                     <div className="float-left col-lg-3 ">
                         <Link 
                             className="btn btn-primary d-block mt-5 ml-5 mr-5 mb-5"
                             role="button"
-                            to={{pathname: "/CampaignLogTable/", state: {templateName: this.state.templateName}}}>
+                            to={{pathname: `/CampaignLogTable/${this.state.templateName}`}}> 
                             {"Return to Campaign Page"}
                         </Link>
                         <Link 
@@ -100,8 +130,7 @@ class EmailLogTable extends React.Component {
                     </div>
                 </div>  
                 </div>   
-            );
-        }
+            );    
     }
 
     //This generates the prop for telling the table which columns should be sortable

@@ -217,7 +217,7 @@ context("Assertions", () => {
       cy.wait(5000);
 
       //click ready
-      cy.get('table').contains('td', "donotremove.docx").siblings().contains('a', 'Start').click();
+      cy.get('table').contains('td', "donotremove").siblings().contains('a', 'Start').click();
       cy.wait(8000);
 
       cy.get('img[class="img-rounded"]')
