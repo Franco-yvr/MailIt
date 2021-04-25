@@ -1,3 +1,10 @@
+Team Mail It! WIP Code Drop - April 24th, 2021  
+1. The template preview bug on the campaign page has been fixed such that now docx files used to generate a template preview are now stored in S3 with the template name as key (which is enforced to be unique). PLEASE NOTE: All templates uploaded before April 24 are stored in S3 with the uploaded file name and therefore all of these templates will not have a template preview rendered. 
+2. The single and batch email campaign form fields have been scaffolded to reduce the number of form fields on the campaign page at one time 
+3. Now if a user is not logged and tries to access any page of the application through the URL an error page will be presented with a button to redirect the user to the login page 
+4. The Logout button previously was not completing a full sign out with AWS Cognito/Amplify so it has now been resolved that when the logout button is clicked it will redirect the user to the login page AND sign them out with Cognito/Amplify 
+5. The URL for the campaign log page and email log page now contains the necessary query parameters to load the respective grids (template name for campaign log page and template name + campaign id for email campaign) 
+
 Team Mail It! WIP Code Drop - April 19th, 2021
 1. Additional sorting has been added to all grids including numerical fields 
 
