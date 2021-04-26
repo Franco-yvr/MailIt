@@ -1,3 +1,8 @@
+Team Mail It! WIP Code Drop - April 25th, 2021 - All environments 
+1. The campaign log and email log grids now have columns that provide details about whether at least one embedded link in an email has been clicked. PLEASE NOTE: this status does not reflect the clicked status of any links passed in as dynamic values but instead solely pre-existing working links that are embedded within the template at the time of upload. The user documentation has been updated to provide more details about this. 
+2. The campaign page now has a new option to provide the user with the api request parameters needed to send a single email campaign. A step by step process has been provided in the user documentation on how to use this.  
+
+
 Team Mail It! WIP Code Drop - April 24th, 2021  
 1. The template preview bug on the campaign page has been fixed such that now docx files used to generate a template preview are now stored in S3 with the template name as key (which is enforced to be unique). PLEASE NOTE: All templates uploaded before April 24 are stored in S3 with the uploaded file name and therefore all of these templates will not have a template preview rendered. 
 2. The single and batch email campaign form fields have been scaffolded to reduce the number of form fields on the campaign page at one time 

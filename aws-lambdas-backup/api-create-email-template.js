@@ -11,14 +11,13 @@ exports.handler = async(event) => {
 
     //S3 sdk object and key to access file in future 
     var bucket = event.bucket;
-    var key = event.fileName;
     var templateName = event.templateName;
     var fileContent = event.content;
     var contentType = event.contentType;
     
     var getParamsDocx = {
         Bucket: bucket,
-        Key: key
+        Key: templateName
     }
 
     if (bucket !== DOCX_BUCKET_NAME) {
@@ -28,10 +27,10 @@ exports.handler = async(event) => {
         }
     }
 
-    if (key == null || key === "") {
+    if (templateName == null || templateName === "") {
         return {
             statusCode: 404,
-            body: JSON.stringify('S3 Key not provided')
+            body: JSON.stringify('Template Name has not been provided.')
         }
     }
 
@@ -43,13 +42,25 @@ exports.handler = async(event) => {
         }
     }
 
+    //Check if the template name is in use, if so throw an error
+    var templatePromise = await new AWS.SES({ apiVersion: '2010-12-01' }).getTemplate({TemplateName: templateName}).promise()
+                                    .catch((error) => {})
+    
+
+    if(templatePromise) {
+        return {
+            statusCode: 404,
+            body: JSON.stringify(`The Template Name ${templateName} is already in use. Please provide a template name not currently in use and try again.`)
+        }
+    }
+    
     //Remove the DOCX_FILE_BASE64_ENCODING_HEADER from the encoded docx file and create a buffer
     const buff = createDocxBuffer(fileContent);
 
     //Put file into S3 bucket, if an error occurs return internal server errors
     var putParams = {
         Bucket: bucket,
-        Key: key,
+        Key: templateName,
         Body: buff,
         ContentEncoding: 'base64',
         ContentType: contentType
@@ -59,7 +70,7 @@ exports.handler = async(event) => {
     // put in new bucket with public view for images
     var putParamsImages = { 
       Bucket: 'docximages', 
-      Key: putParams.Key.replace(".docx", "") + "/"
+      Key: templateName + "/"
     };
     
     
@@ -72,8 +83,6 @@ exports.handler = async(event) => {
             body: JSON.stringify('Error uploading file to S3: ' + error)
         }
     });
-    
-    var data = await s3.getObject(getParamsDocx).promise();
     
     var index=0;
    
@@ -96,7 +105,7 @@ exports.handler = async(event) => {
     };
 
     //Convert file to html
-    var resulting_html = await mammoth.convertToHtml({ buffer: data.Body }, options);
+    var resulting_html = await mammoth.convertToHtml({ buffer: buff }, options);
     var resulting_html_string = resulting_html.value.toString();
     if(resulting_html_string == null || resulting_html_string.trim() === "" ) {
         return {
@@ -143,14 +152,13 @@ exports.handler = async(event) => {
     
 
     //Create the Template Log in DynamoDB
-    //TODO: Should this be created if there was an error uploading the email template? 
     var databaseParams = {
         TableName: 'tTemplateLog',
         Item: {
             'TemplateName': { S: templateName },
             'DynamicValues': { S: JSON.stringify(dynamicValues) },
             'DocUploadDateTime': { S: new Date(Date.now()).toString() },
-            'S3Key': { S: key },
+            'S3Key': { S: templateName },
             'Team': { S: 'TODO' },
             'UploadStatus': { S: 'Ready' },
         }
