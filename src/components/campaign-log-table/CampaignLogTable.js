@@ -116,11 +116,9 @@ class CampaignLogTable extends React.Component {
                         </Link>
                     </div> 
                     <div className="float-right col-lg-9 pl-0 pr-1">
-                        {table && table.numRows > 0 ? <h1 className="mt-2">{`Campaign logs: ${this.state.templateName}`}</h1> :
-                        <div> </div>}
-                        {table? (table.numRows > 0 ? <Table data={table} columnsToSort={this.getColumnsToSort()}/> :
-                        <h1 className="vertical-horizontal-center"> No campaigns for this template yet</h1> )
-                        : 
+                        <h1 className="mt-2">{`Campaign logs: ${this.state.templateName}`}</h1> 
+                        {table ? 
+                        <Table data={table} columnsToSort={this.getColumnsToSort()}/> :
                         <Table loading={true}/>}
                     </div>
                 </div> 
