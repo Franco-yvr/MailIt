@@ -1,3 +1,6 @@
+Team Mail It! WIP Code Drop - April 26th, 2021 - All environments 
+1.The campaign log grid now displays an empty grid if there are no campaign logs associated with a template instead of the large display message indicating there are no campaign logs. 
+
 Team Mail It! WIP Code Drop - April 25th, 2021 - All environments 
 1. The campaign log and email log grids now have columns that provide details about whether at least one embedded link in an email has been clicked. PLEASE NOTE: this status does not reflect the clicked status of any links passed in as dynamic values but instead solely pre-existing working links that are embedded within the template at the time of upload. The user documentation has been updated to provide more details about this. 
 2. The campaign page now has a new option to provide the user with the api request parameters needed to send a single email campaign. A step by step process has been provided in the user documentation on how to use this.  
